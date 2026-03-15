@@ -28,16 +28,15 @@ async def test_create_briefing_returns_string():
     assert len(result) > 0
 
 
-async def test_create_briefing_is_concise():
+async def test_create_briefing_includes_reasoning():
     result = await create_briefing(_sample_strategy_output(), _sample_context())
-    sentences = [s.strip() for s in result.split(".") if s.strip()]
-    assert len(sentences) <= 5
+    assert "Norris" in result
+    assert "mediums" in result
 
 
-async def test_create_briefing_mentions_recommendation():
+async def test_create_briefing_starts_with_call():
     result = await create_briefing(_sample_strategy_output(), _sample_context())
-    result_lower = result.lower()
-    assert "pit" in result_lower or "box" in result_lower
+    assert result.startswith("Box box box.")
 
 
 async def test_create_briefing_handles_stay_out():
@@ -47,5 +46,5 @@ async def test_create_briefing_handles_stay_out():
         confidence=Confidence.HIGH,
     )
     result = await create_briefing(strategy, _sample_context())
-    result_lower = result.lower()
-    assert "stay out" in result_lower or "hold position" in result_lower or "push" in result_lower
+    assert result.startswith("Stay out, stay out.")
+    assert "Tyres are fine" in result

@@ -16,7 +16,7 @@ def _get_client() -> genai.Client:
 
 async def generate_strategy(system_prompt: str, user_message: str) -> str:
     try:
-        response = await _get_client().models.generate_content_async(
+        response = await _get_client().aio.models.generate_content(
             model=settings.gemini_model,
             contents=user_message,
             config=genai.types.GenerateContentConfig(

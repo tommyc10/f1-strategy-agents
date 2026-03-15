@@ -8,7 +8,7 @@ async def test_generate_strategy_returns_text():
     mock_response.text = "Based on the data, Norris should pit now."
 
     mock_client = MagicMock()
-    mock_client.models.generate_content_async = AsyncMock(return_value=mock_response)
+    mock_client.aio.models.generate_content = AsyncMock(return_value=mock_response)
 
     with patch("app.services.gemini._get_client", return_value=mock_client):
         result = await generate_strategy(
@@ -20,7 +20,7 @@ async def test_generate_strategy_returns_text():
 
 async def test_generate_strategy_returns_empty_on_error():
     mock_client = MagicMock()
-    mock_client.models.generate_content_async = AsyncMock(side_effect=Exception("API error"))
+    mock_client.aio.models.generate_content = AsyncMock(side_effect=Exception("API error"))
 
     with patch("app.services.gemini._get_client", return_value=mock_client):
         result = await generate_strategy(

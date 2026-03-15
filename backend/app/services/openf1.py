@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timezone
 from httpx import AsyncClient
 from app.config import settings
 
@@ -13,7 +14,10 @@ async def _get(client: AsyncClient, endpoint: str, params: dict | None = None) -
         if response.status_code != 200:
             logger.warning("OpenF1 %s returned %d", endpoint, response.status_code)
             return []
-        return response.json()
+        data = response.json()
+        if not isinstance(data, list):
+            return []
+        return data
     except Exception as e:
         logger.error("OpenF1 %s failed: %s", endpoint, e)
         return []
@@ -21,7 +25,11 @@ async def _get(client: AsyncClient, endpoint: str, params: dict | None = None) -
 
 async def fetch_latest_session(client: AsyncClient) -> dict | None:
     results = await _get(client, "sessions", {"session_type": "Race"})
-    return results[-1] if results else None
+    if not results:
+        return None
+    now = datetime.now(timezone.utc).isoformat()
+    past = [s for s in results if s.get("date_start", "") <= now]
+    return past[-1] if past else results[-1]
 
 
 async def fetch_positions(client: AsyncClient, session_key: str) -> list:

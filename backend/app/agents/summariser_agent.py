@@ -4,44 +4,27 @@ from app.models.types import Recommendation, Confidence
 
 logger = logging.getLogger(__name__)
 
-TEMPLATES = {
-    Recommendation.PIT: "Box box box. {tyre_detail}{gap_detail}",
-    Recommendation.STAY_OUT: "Stay out, stay out. {tyre_detail}{gap_detail}",
-    Recommendation.OPPOSITE: "We're going opposite strategy. {tyre_detail}{gap_detail}",
-    Recommendation.FLEXIBLE: "Standby, we're looking at options. {tyre_detail}{gap_detail}",
+CALL_PREFIX = {
+    Recommendation.PIT: "Box box box.",
+    Recommendation.STAY_OUT: "Stay out, stay out.",
+    Recommendation.OPPOSITE: "We're going opposite.",
+    Recommendation.FLEXIBLE: "Standby, we're looking at options.",
 }
 
 CONFIDENCE_SUFFIX = {
-    Confidence.HIGH: "High confidence on this call.",
-    Confidence.MEDIUM: "Moderate confidence — monitor the situation.",
+    Confidence.HIGH: "High confidence.",
+    Confidence.MEDIUM: "Moderate confidence — keep us updated.",
     Confidence.LOW: "Low confidence — be ready to adapt.",
 }
 
 
-def _tyre_detail(context: RaceContext) -> str:
-    if not context.stints:
-        return ""
-    latest = context.stints[-1]
-    return f"{latest.compound.value.capitalize()}s on {latest.tyre_age} laps. "
-
-
-def _gap_detail(context: RaceContext) -> str:
-    if len(context.positions) < 2:
-        return ""
-    gap = context.positions[0].gap_to_leader
-    if gap == 0.0 and len(context.positions) > 1:
-        gap = context.positions[1].gap_to_leader
-    if gap > 0:
-        return f"Gap is {gap:.1f}s. "
-    return ""
-
-
 async def create_briefing(strategy: StrategyOutput, context: RaceContext) -> str:
-    template = TEMPLATES.get(strategy.recommendation, TEMPLATES[Recommendation.FLEXIBLE])
-    tyre = _tyre_detail(context)
-    gap = _gap_detail(context)
+    prefix = CALL_PREFIX.get(strategy.recommendation, CALL_PREFIX[Recommendation.FLEXIBLE])
+    suffix = CONFIDENCE_SUFFIX[strategy.confidence]
 
-    briefing = template.format(tyre_detail=tyre, gap_detail=gap)
-    briefing += CONFIDENCE_SUFFIX[strategy.confidence]
+    # Use the actual LLM reasoning, trimmed to keep it radio-concise
+    reasoning = strategy.reasoning.strip()
+    if len(reasoning) > 300:
+        reasoning = reasoning[:297] + "..."
 
-    return briefing.strip()
+    return f"{prefix} {reasoning} {suffix}"

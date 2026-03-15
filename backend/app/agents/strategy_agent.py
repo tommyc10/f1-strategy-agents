@@ -65,6 +65,7 @@ async def analyse_strategy(question: str, race_context: RaceContext) -> Strategy
     user_message = f"Race Data:\n{context_text}\n\nQuestion: {question}"
 
     raw_response = await generate_strategy(SYSTEM_PROMPT, user_message)
+    logger.info("Gemini raw response:\n%s", raw_response[:500])
 
     if not raw_response:
         return StrategyOutput(

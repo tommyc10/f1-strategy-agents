@@ -13,8 +13,17 @@ def _build_driver_lookup(raw_drivers: list) -> dict[int, str]:
     return {d["driver_number"]: d["name_acronym"] for d in raw_drivers}
 
 
+def _safe_gap(value: object) -> float:
+    if isinstance(value, (int, float)):
+        return float(value)
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        return 0.0
+
+
 def _parse_positions(raw_positions: list, raw_intervals: list, driver_lookup: dict[int, str]) -> list[DriverPosition]:
-    gap_map = {item["driver_number"]: item.get("gap_to_leader", 0.0) for item in raw_intervals}
+    gap_map = {item["driver_number"]: _safe_gap(item.get("gap_to_leader", 0.0)) for item in raw_intervals}
     seen = set()
     positions = []
     for p in sorted(raw_positions, key=lambda x: x["position"]):
