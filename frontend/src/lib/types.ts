@@ -49,3 +49,11 @@ export type ChatMessage = {
   content: string;
   timestamp: number;
 };
+
+export type Session = {
+  session_key: string;
+  date: string;
+  location: string;
+  country: string;
+  year: number;
+};

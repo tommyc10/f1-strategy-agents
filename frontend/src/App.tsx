@@ -1,13 +1,15 @@
 import { useState, useCallback, useEffect } from "react";
 import { ChatPanel } from "./components/ChatPanel";
 import { DashboardSidebar } from "./components/DashboardSidebar";
+import { SessionPicker } from "./components/SessionPicker";
 import { useWebSocket } from "./hooks/useWebSocket";
-import type { ChatMessage, RaceContext } from "./lib/types";
+import type { ChatMessage, RaceContext, Session } from "./lib/types";
 
 function App() {
   const { connected, agentStatus, lastResult, error, loading, sendQuery } = useWebSocket();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [raceContext, setRaceContext] = useState<RaceContext | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
 
   const handleSend = useCallback(
     (question: string) => {
@@ -18,9 +20,9 @@ function App() {
         timestamp: Date.now(),
       };
       setMessages((prev) => [...prev, userMsg]);
-      sendQuery(question);
+      sendQuery(question, session?.session_key);
     },
-    [sendQuery],
+    [sendQuery, session],
   );
 
   useEffect(() => {
@@ -41,6 +43,7 @@ function App() {
       <header className="flex items-center justify-between px-6 py-3 border-b border-white/[0.06]">
         <div className="flex items-center gap-3">
           <h1 className="text-sm font-semibold tracking-tight">Strategy</h1>
+          <SessionPicker selected={session} onSelect={setSession} />
           {connected && (
             <span className="text-[10px] text-violet-400/60 uppercase tracking-widest bg-violet-500/10 px-2 py-0.5 rounded">
               Live
