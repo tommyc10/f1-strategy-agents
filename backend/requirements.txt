@@ -7,3 +7,4 @@ python-dotenv>=1.0.0
 google-genai>=1.0.0
 pytest>=8.0.0
 pytest-asyncio>=0.25.0
+fastf1>=3.0.0

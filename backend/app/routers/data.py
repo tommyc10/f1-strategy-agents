@@ -16,6 +16,30 @@ async def fetch_data(request: DataFetchRequest):
     return DataFetchResponse(race_context=context)
 
 
+@router.get("/sessions")
+async def list_sessions(year: int | None = None):
+    async with httpx.AsyncClient() as client:
+        params = {"session_type": "Race"}
+        if year:
+            params["year"] = year
+        results = await openf1._get(client, "sessions", params)
+
+        from datetime import datetime, timezone
+        now = datetime.now(timezone.utc).isoformat()
+        past = [s for s in results if s.get("date_start", "") <= now]
+
+        return [
+            {
+                "session_key": str(s["session_key"]),
+                "date": s.get("date_start", "")[:10],
+                "location": s.get("location", ""),
+                "country": s.get("country_name", ""),
+                "year": s.get("year", 0),
+            }
+            for s in reversed(past)  # most recent first
+        ]
+
+
 @router.get("/drivers", response_model=DriversResponse)
 async def get_drivers(session_key: str | None = None):
     async with httpx.AsyncClient() as client:

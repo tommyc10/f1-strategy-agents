@@ -21,3 +21,9 @@ dist/
 
 # Project
 .superpowers/
+.claude
+.agents
+
+# FastF1 cache
+.fastf1_cache/
+

@@ -1,7 +1,7 @@
 import logging
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import data, strategy, summariser, orchestrator
+from app.routers import data, strategy, summariser, orchestrator, fastf1_router
 from app.agents.data_agent import fetch_race_context
 from app.agents.strategy_agent import analyse_strategy
 from app.agents.summariser_agent import create_briefing
@@ -24,6 +24,7 @@ app.include_router(data.router)
 app.include_router(strategy.router)
 app.include_router(summariser.router)
 app.include_router(orchestrator.router)
+app.include_router(fastf1_router.router)
 
 
 @app.get("/health")
