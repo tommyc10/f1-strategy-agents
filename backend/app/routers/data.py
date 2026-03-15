@@ -61,3 +61,27 @@ async def get_drivers(session_key: str | None = None):
         for d in raw_drivers
     ]
     return DriversResponse(session_key=session_key, drivers=drivers)
+
+
+@router.get("/race-summary")
+async def race_summary(session_key: str):
+    context = await fetch_race_context(session_key=session_key)
+
+    # Group stints by driver for strategy visualization
+    strategy_map: dict[str, list[dict]] = {}
+    for stint in context.stints:
+        if stint.driver not in strategy_map:
+            strategy_map[stint.driver] = []
+        strategy_map[stint.driver].append({
+            "stint_number": stint.stint_number,
+            "compound": stint.compound.value,
+            "tyre_age": stint.tyre_age,
+        })
+
+    return {
+        "session_key": context.session_key,
+        "positions": [p.model_dump() for p in context.positions],
+        "strategy_map": strategy_map,
+        "weather": context.weather.model_dump() if context.weather else None,
+        "total_drivers": len(context.positions),
+    }

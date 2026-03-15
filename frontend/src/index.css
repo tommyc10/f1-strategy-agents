@@ -1,1 +1,73 @@
 @import "tailwindcss";
+
+:root {
+  /* Dark theme (default) */
+  --bg-root: #09090b;
+  --bg-card: rgba(255, 255, 255, 0.04);
+  --bg-card-hover: rgba(255, 255, 255, 0.06);
+  --bg-input: rgba(255, 255, 255, 0.03);
+  --bg-dropdown: #111113;
+  --bg-highlight: rgba(139, 92, 246, 0.06);
+  --bg-error: rgba(239, 68, 68, 0.1);
+
+  --border: rgba(255, 255, 255, 0.06);
+  --border-strong: rgba(255, 255, 255, 0.08);
+  --border-error: rgba(239, 68, 68, 0.2);
+
+  --text-primary: rgba(255, 255, 255, 0.85);
+  --text-secondary: rgba(255, 255, 255, 0.5);
+  --text-muted: rgba(255, 255, 255, 0.25);
+  --text-ghost: rgba(255, 255, 255, 0.12);
+
+  --accent: rgb(139, 92, 246);
+  --accent-muted: rgba(139, 92, 246, 0.6);
+  --accent-bg: rgba(139, 92, 246, 0.1);
+  --accent-bg-strong: rgba(139, 92, 246, 0.2);
+
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
+  --shadow-dropdown: 0 8px 32px rgba(0, 0, 0, 0.5);
+
+  --compound-soft: rgb(248, 113, 113);
+  --compound-medium: rgb(250, 204, 21);
+  --compound-hard: rgba(255, 255, 255, 0.5);
+  --compound-inter: rgb(74, 222, 128);
+  --compound-wet: rgb(96, 165, 250);
+}
+
+[data-theme="light"] {
+  --bg-root: #F6F5F1;
+  --bg-card: rgba(255, 255, 255, 0.75);
+  --bg-card-hover: rgba(255, 255, 255, 0.9);
+  --bg-input: rgba(0, 0, 0, 0.02);
+  --bg-dropdown: #FFFFFF;
+  --bg-highlight: rgba(124, 58, 237, 0.05);
+  --bg-error: rgba(239, 68, 68, 0.06);
+
+  --border: rgba(0, 0, 0, 0.06);
+  --border-strong: rgba(0, 0, 0, 0.1);
+  --border-error: rgba(239, 68, 68, 0.15);
+
+  --text-primary: #1C1C1E;
+  --text-secondary: rgba(0, 0, 0, 0.5);
+  --text-muted: rgba(0, 0, 0, 0.25);
+  --text-ghost: rgba(0, 0, 0, 0.1);
+
+  --accent: rgb(124, 58, 237);
+  --accent-muted: rgba(124, 58, 237, 0.5);
+  --accent-bg: rgba(124, 58, 237, 0.08);
+  --accent-bg-strong: rgba(124, 58, 237, 0.14);
+
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.03);
+  --shadow-dropdown: 0 4px 24px rgba(0, 0, 0, 0.08);
+
+  --compound-soft: rgb(220, 38, 38);
+  --compound-medium: rgb(202, 138, 4);
+  --compound-hard: rgba(0, 0, 0, 0.4);
+  --compound-inter: rgb(22, 163, 74);
+  --compound-wet: rgb(37, 99, 235);
+}
+
+body {
+  background-color: var(--bg-root);
+  transition: background-color 0.3s ease;
+}
