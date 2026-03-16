@@ -8,7 +8,7 @@ import { SectorBreakdown } from "./SectorBreakdown";
 import { AnalysisBar } from "./AnalysisBar";
 import { AnalysisCard } from "./AnalysisCard";
 import { fetchRaceSummary, type RaceSummary } from "../lib/api";
-import type { Session, SectorTime, RaceContext } from "../lib/types";
+import type { Session, RaceContext } from "../lib/types";
 
 type Analysis = { id: string; question: string; answer: string };
 

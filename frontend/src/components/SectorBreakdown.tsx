@@ -1,7 +1,12 @@
-import { SectorTime } from "../lib/types";
+type SectorTimeLocal = {
+  driver: string;
+  lap_number: number;
+  sector_number: number;
+  sector_time: number;
+};
 
 type Props = {
-  sectors: SectorTime[];
+  sectors: SectorTimeLocal[];
   drivers: string[];
 };
 
