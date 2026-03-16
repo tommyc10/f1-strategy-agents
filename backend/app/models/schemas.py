@@ -25,6 +25,13 @@ class LapTime(BaseModel):
     lap_time: float
 
 
+class SectorTime(BaseModel):
+    driver: str
+    lap_number: int
+    sector_number: int  # 1, 2, or 3
+    sector_time: float
+
+
 class Weather(BaseModel):
     track_temp: float
     air_temp: float
@@ -36,6 +43,7 @@ class RaceContext(BaseModel):
     positions: list[DriverPosition]
     stints: list[TyreStint]
     laps: list[LapTime]
+    sectors: list[SectorTime] = []
     weather: Weather | None
 
 

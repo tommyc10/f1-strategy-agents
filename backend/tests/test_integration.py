@@ -4,7 +4,7 @@ from httpx import AsyncClient, ASGITransport
 from app.main import app
 from tests.mock_data import (
     MOCK_SESSION, MOCK_POSITIONS, MOCK_DRIVERS, MOCK_STINTS,
-    MOCK_LAPS, MOCK_WEATHER, MOCK_INTERVALS,
+    MOCK_LAPS, MOCK_WEATHER, MOCK_INTERVALS, MOCK_SECTORS,
 )
 
 
@@ -17,6 +17,7 @@ def mock_all_openf1():
         mock_module.fetch_drivers = AsyncMock(return_value=MOCK_DRIVERS)
         mock_module.fetch_stints = AsyncMock(return_value=MOCK_STINTS)
         mock_module.fetch_laps = AsyncMock(return_value=MOCK_LAPS)
+        mock_module.fetch_sectors = AsyncMock(return_value=MOCK_SECTORS)
         mock_module.fetch_weather = AsyncMock(return_value=MOCK_WEATHER)
         mock_module.fetch_intervals = AsyncMock(return_value=MOCK_INTERVALS)
         yield mock_module

@@ -41,3 +41,12 @@ MOCK_INTERVALS = [
     {"driver_number": 4, "gap_to_leader": 1.2, "interval": 1.2},
     {"driver_number": 16, "gap_to_leader": 3.4, "interval": 2.2},
 ]
+
+MOCK_SECTORS = [
+    {"driver_number": 1, "lap_number": 34, "sector_number": 1, "sector_duration": 26500},  # 26.5s
+    {"driver_number": 1, "lap_number": 34, "sector_number": 2, "sector_duration": 27200},  # 27.2s
+    {"driver_number": 1, "lap_number": 34, "sector_number": 3, "sector_duration": 27190},  # 27.19s
+    {"driver_number": 4, "lap_number": 34, "sector_number": 1, "sector_duration": 27100},  # 27.1s
+    {"driver_number": 4, "lap_number": 34, "sector_number": 2, "sector_duration": 27300},  # 27.3s
+    {"driver_number": 4, "lap_number": 34, "sector_number": 3, "sector_duration": 27167},  # 27.167s
+]

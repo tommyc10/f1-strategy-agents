@@ -2,7 +2,7 @@ import logging
 import httpx
 from app.services import openf1
 from app.models.schemas import (
-    RaceContext, DriverPosition, TyreStint, LapTime, Weather,
+    RaceContext, DriverPosition, TyreStint, LapTime, Weather, SectorTime,
 )
 from app.models.types import TyreCompound
 
@@ -83,6 +83,24 @@ def _parse_laps(raw_laps: list, driver_lookup: dict[int, str]) -> list[LapTime]:
     return laps
 
 
+def _parse_sectors(raw_sectors: list, driver_lookup: dict[int, str]) -> list[SectorTime]:
+    sectors = []
+    for sector in raw_sectors:
+        num = sector.get("driver_number")
+        if num not in driver_lookup or sector.get("sector_duration") is None:
+            continue
+        # OpenF1 returns sector_duration in milliseconds; convert to seconds
+        sector_duration_ms = sector["sector_duration"]
+        sector_duration_s = sector_duration_ms / 1000.0 if sector_duration_ms > 10 else sector_duration_ms
+        sectors.append(SectorTime(
+            driver=driver_lookup[num],
+            lap_number=sector.get("lap_number", 0),
+            sector_number=sector.get("sector_number", 0),
+            sector_time=sector_duration_s,
+        ))
+    return sectors
+
+
 def _parse_weather(raw_weather: list) -> Weather | None:
     if not raw_weather:
         return None
@@ -126,6 +144,7 @@ async def fetch_race_context(
         raw_intervals = await openf1.fetch_intervals(client, session_key)
         raw_stints = await openf1.fetch_stints(client, session_key)
         raw_laps = await openf1.fetch_laps(client, session_key)
+        raw_sectors = await openf1.fetch_sectors(client, session_key)
         raw_weather = await openf1.fetch_weather(client, session_key)
 
         return RaceContext(
@@ -133,5 +152,6 @@ async def fetch_race_context(
             positions=_parse_positions(raw_positions, raw_intervals, driver_lookup),
             stints=_parse_stints(raw_stints, driver_lookup),
             laps=_parse_laps(raw_laps, driver_lookup),
+            sectors=_parse_sectors(raw_sectors, driver_lookup),
             weather=_parse_weather(raw_weather),
         )
