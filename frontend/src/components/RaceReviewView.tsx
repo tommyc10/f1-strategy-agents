@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Loader2 } from "lucide-react";
+import { Loader2, Thermometer, Wind, CloudRain } from "lucide-react";
 import { ResultsTable } from "./ResultsTable";
 import { StrategyMap } from "./StrategyMap";
-import { WeatherCard } from "./WeatherCard";
 import { SectorBreakdown } from "./SectorBreakdown";
 import { AnalysisBar } from "./AnalysisBar";
 import { AnalysisCard } from "./AnalysisCard";
@@ -68,56 +67,82 @@ export function RaceReviewView({ session, onAsk, loading, lastAnswer, raceContex
   }
 
   const sessionLabel = `${session.location} ${session.year}`;
+  const w = summary.weather;
 
   return (
     <div className="flex flex-col h-full">
+      {/* Header with inline weather */}
       <div className="px-6 py-4 border-b border-[var(--border)]">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="flex items-baseline gap-3"
+          className="flex items-center justify-between"
         >
-          <h2 className="text-lg font-semibold tracking-tight text-[var(--text-primary)]">{session.location}</h2>
-          <span className="text-sm text-[var(--text-muted)]">{session.date}</span>
-          <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-widest bg-[var(--bg-card)] px-2 py-0.5 rounded">
-            {summary.total_drivers} drivers
-          </span>
+          <div className="flex items-baseline gap-3">
+            <h2 className="text-lg font-semibold tracking-tight text-[var(--text-primary)]">{session.location}</h2>
+            <span className="text-sm text-[var(--text-muted)]">{session.date}</span>
+            <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-widest bg-[var(--bg-card)] px-2 py-0.5 rounded">
+              {summary.total_drivers} drivers
+            </span>
+          </div>
+
+          {w && (
+            <div className="flex items-center gap-4 text-[11px] text-[var(--text-secondary)]">
+              <div className="flex items-center gap-1.5">
+                <Thermometer size={12} className="text-[var(--text-muted)]" />
+                <span className="font-mono">{w.track_temp}°</span>
+                <span className="text-[var(--text-muted)]">track</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Wind size={12} className="text-[var(--text-muted)]" />
+                <span className="font-mono">{w.air_temp}°</span>
+                <span className="text-[var(--text-muted)]">air</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <CloudRain size={12} className="text-[var(--text-muted)]" />
+                <span className="font-mono">{w.rain_risk}%</span>
+              </div>
+            </div>
+          )}
         </motion.div>
       </div>
 
+      {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 max-w-6xl mx-auto">
-          <div className="lg:col-span-1">
-            <ResultsTable positions={summary.positions} />
-          </div>
+        <div className="flex flex-col gap-4 max-w-6xl mx-auto">
+          {/* Hero: Strategy map full width */}
+          <StrategyMap strategyMap={summary.strategy_map} />
 
-          <div className="lg:col-span-2 flex flex-col gap-4">
-            <StrategyMap strategyMap={summary.strategy_map} />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {summary.sectors && summary.sectors.length > 0 && (
+          {/* Two-column: Classification + Sectors */}
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+            <div className="lg:col-span-2">
+              <ResultsTable positions={summary.positions} />
+            </div>
+            <div className="lg:col-span-3">
+              {summary.sectors && summary.sectors.length > 0 ? (
                 <SectorBreakdown
                   sectors={summary.sectors}
                   drivers={summary.positions.slice(0, 5).map((p) => p.driver)}
                 />
-              )}
-
-              {summary.weather && (
-                <WeatherCard weather={summary.weather} />
+              ) : (
+                <div className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--border)] rounded-2xl p-6 h-full flex items-center justify-center">
+                  <p className="text-xs text-[var(--text-muted)]">No sector data available</p>
+                </div>
               )}
             </div>
-
-            {analyses.map((a) => (
-              <AnalysisCard key={a.id} question={a.question} answer={a.answer} />
-            ))}
-
-            {loading && pendingQuestion && (
-              <div className="flex items-center gap-2 text-xs text-[var(--accent-muted)] animate-pulse">
-                <Loader2 size={12} className="animate-spin" />
-                <span className="uppercase tracking-widest">Analysing...</span>
-              </div>
-            )}
           </div>
+
+          {/* Analysis cards */}
+          {analyses.map((a) => (
+            <AnalysisCard key={a.id} question={a.question} answer={a.answer} />
+          ))}
+
+          {loading && pendingQuestion && (
+            <div className="flex items-center gap-2 text-xs text-[var(--accent-muted)] animate-pulse">
+              <Loader2 size={12} className="animate-spin" />
+              <span className="uppercase tracking-widest">Analysing...</span>
+            </div>
+          )}
         </div>
       </div>
 

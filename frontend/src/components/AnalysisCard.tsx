@@ -11,17 +11,20 @@ export function AnalysisCard({ question, answer }: Props) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--border)] rounded-2xl overflow-hidden"
+      className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--accent-bg-strong)] rounded-2xl overflow-hidden"
     >
-      <div className="px-5 py-3 border-b border-[var(--border)]">
-        <span className="text-[10px] uppercase tracking-[2px] text-[var(--accent-muted)] font-semibold">
-          Analysis
-        </span>
-        <p className="text-sm text-[var(--text-secondary)] mt-1">{question}</p>
+      <div className="px-5 py-3 border-b border-[var(--border)] flex items-center gap-3">
+        <div className="w-1 h-4 rounded-full bg-[var(--accent)]" />
+        <div>
+          <span className="text-[10px] uppercase tracking-[2px] text-[var(--accent-muted)] font-semibold">
+            Analysis
+          </span>
+          <p className="text-[13px] text-[var(--text-secondary)] mt-0.5">{question}</p>
+        </div>
       </div>
-      <div className="px-5 py-4 space-y-3">
+      <div className="px-5 py-4 space-y-2.5">
         {answer.split("\n").filter(Boolean).map((paragraph, i) => (
-          <p key={i} className="text-sm text-[var(--text-primary)] leading-relaxed">
+          <p key={i} className="text-[13px] text-[var(--text-primary)] leading-relaxed">
             {paragraph}
           </p>
         ))}
