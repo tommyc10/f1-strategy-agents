@@ -38,7 +38,7 @@ export function ChatPanel({ messages, onSend, loading, agentStatus }: Props) {
         </AnimatePresence>
 
         {loading && activeAgent && (
-          <div className="text-xs text-violet-400/60 uppercase tracking-widest animate-pulse">
+          <div className="text-xs text-[var(--accent-muted)] uppercase tracking-widest animate-pulse">
             {activeAgent[0]} agent running...
           </div>
         )}
@@ -46,20 +46,20 @@ export function ChatPanel({ messages, onSend, loading, agentStatus }: Props) {
         <div ref={bottomRef} />
       </div>
 
-      <form onSubmit={handleSubmit} className="p-4 border-t border-white/[0.06]">
-        <div className="flex items-center gap-3 bg-white/[0.03] border border-white/[0.08] rounded-full px-4 py-2 backdrop-blur-xl">
+      <form onSubmit={handleSubmit} className="p-4 border-t border-[var(--border)]">
+        <div className="flex items-center gap-3 bg-[var(--bg-input)] border border-[var(--border-strong)] rounded-full px-4 py-2 backdrop-blur-xl">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask your engineer..."
             disabled={loading}
-            className="flex-1 bg-transparent text-sm text-white/80 placeholder:text-white/20 outline-none"
+            className="flex-1 bg-transparent text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none"
           />
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className="w-8 h-8 rounded-full bg-violet-500/20 flex items-center justify-center text-violet-400 hover:bg-violet-500/30 transition-colors disabled:opacity-30"
+            className="w-8 h-8 rounded-full bg-[var(--accent-bg-strong)] flex items-center justify-center text-[var(--accent)] hover:bg-[var(--accent-bg-strong)] transition-colors disabled:opacity-30"
           >
             <Send size={14} />
           </button>

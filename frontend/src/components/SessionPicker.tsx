@@ -30,7 +30,7 @@ export function SessionPicker({ selected, onSelect }: Props) {
     <div className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-sm text-white/70 hover:bg-white/[0.06] transition-colors"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--bg-card)] border border-[var(--border-strong)] text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)] transition-colors"
       >
         <span>{loading ? "Loading..." : label}</span>
         <ChevronDown size={14} className={`transition-transform ${open ? "rotate-180" : ""}`} />
@@ -43,7 +43,7 @@ export function SessionPicker({ selected, onSelect }: Props) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.15 }}
-            className="absolute top-full left-0 mt-1 w-64 max-h-80 overflow-y-auto rounded-xl bg-[#111113] border border-white/[0.08] shadow-[0_8px_32px_rgba(0,0,0,0.5)] backdrop-blur-xl z-50"
+            className="absolute top-full left-0 mt-1 w-64 max-h-80 overflow-y-auto rounded-xl bg-[var(--bg-dropdown)] border border-[var(--border-strong)] shadow-[var(--shadow-dropdown)] backdrop-blur-xl z-50"
           >
             {sessions.map((s) => (
               <button
@@ -52,18 +52,18 @@ export function SessionPicker({ selected, onSelect }: Props) {
                   onSelect(s);
                   setOpen(false);
                 }}
-                className={`w-full text-left px-4 py-2.5 text-sm hover:bg-white/[0.04] transition-colors border-b border-white/[0.04] last:border-0 ${
-                  selected?.session_key === s.session_key ? "bg-violet-500/10 text-violet-400" : "text-white/70"
+                className={`w-full text-left px-4 py-2.5 text-sm hover:bg-[var(--bg-card-hover)] transition-colors border-b border-[var(--border)] last:border-0 ${
+                  selected?.session_key === s.session_key ? "bg-[var(--accent-bg)] text-[var(--accent)]" : "text-[var(--text-secondary)]"
                 }`}
               >
                 <div className="font-medium">{s.location}</div>
-                <div className="text-[10px] text-white/30 mt-0.5">
+                <div className="text-[10px] text-[var(--text-muted)] mt-0.5">
                   {s.date} · {s.country}
                 </div>
               </button>
             ))}
             {sessions.length === 0 && !loading && (
-              <p className="text-white/20 text-xs p-4">No sessions found</p>
+              <p className="text-[var(--text-muted)] text-xs p-4">No sessions found</p>
             )}
           </motion.div>
         )}

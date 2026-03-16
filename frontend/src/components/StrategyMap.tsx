@@ -6,20 +6,12 @@ type Stint = {
   tyre_age: number;
 };
 
-const COMPOUND_COLORS: Record<string, string> = {
+const COMPOUND_BG: Record<string, string> = {
   SOFT: "bg-red-500",
   MEDIUM: "bg-yellow-500",
-  HARD: "bg-white/60",
+  HARD: "bg-neutral-400",
   INTERMEDIATE: "bg-green-500",
   WET: "bg-blue-500",
-};
-
-const COMPOUND_TEXT: Record<string, string> = {
-  SOFT: "text-red-400",
-  MEDIUM: "text-yellow-400",
-  HARD: "text-white/50",
-  INTERMEDIATE: "text-green-400",
-  WET: "text-blue-400",
 };
 
 export function StrategyMap({
@@ -31,23 +23,22 @@ export function StrategyMap({
     ([, a], [, b]) => b.reduce((sum, s) => sum + s.tyre_age, 0) - a.reduce((sum, s) => sum + s.tyre_age, 0),
   );
 
-  // Find max total laps for scaling bars
   const maxLaps = Math.max(
     ...drivers.map(([, stints]) => stints.reduce((sum, s) => sum + s.tyre_age, 0)),
     1,
   );
 
   return (
-    <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-2xl overflow-hidden">
-      <div className="px-5 py-3 border-b border-white/[0.06] flex items-center justify-between">
-        <h2 className="text-[10px] uppercase tracking-[2px] text-violet-400/60 font-semibold">
+    <div className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--border)] rounded-2xl overflow-hidden">
+      <div className="px-5 py-3 border-b border-[var(--border)] flex items-center justify-between">
+        <h2 className="text-[10px] uppercase tracking-[2px] text-[var(--accent-muted)] font-semibold">
           Strategy
         </h2>
         <div className="flex items-center gap-3">
           {["SOFT", "MEDIUM", "HARD"].map((c) => (
             <div key={c} className="flex items-center gap-1.5">
-              <div className={`w-2 h-2 rounded-full ${COMPOUND_COLORS[c]}`} />
-              <span className="text-[9px] text-white/30 uppercase">{c[0]}</span>
+              <div className={`w-2 h-2 rounded-full ${COMPOUND_BG[c]}`} />
+              <span className="text-[9px] text-[var(--text-muted)] uppercase">{c[0]}</span>
             </div>
           ))}
         </div>
@@ -63,7 +54,7 @@ export function StrategyMap({
               transition={{ delay: i * 0.015 }}
               className="flex items-center gap-3"
             >
-              <span className="w-10 text-xs text-white/60 font-medium shrink-0">
+              <span className="w-10 text-xs text-[var(--text-secondary)] font-medium shrink-0">
                 {driver}
               </span>
               <div className="flex-1 flex h-5 rounded overflow-hidden">
@@ -72,7 +63,7 @@ export function StrategyMap({
                   return (
                     <div
                       key={stint.stint_number}
-                      className={`${COMPOUND_COLORS[stint.compound] ?? "bg-white/20"} opacity-80 hover:opacity-100 transition-opacity relative group`}
+                      className={`${COMPOUND_BG[stint.compound] ?? "bg-neutral-500"} opacity-80 hover:opacity-100 transition-opacity relative group`}
                       style={{ width: `${widthPct}%` }}
                     >
                       <div className="absolute inset-0 flex items-center justify-center">
@@ -82,20 +73,16 @@ export function StrategyMap({
                           </span>
                         )}
                       </div>
-                      {/* Tooltip */}
                       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block z-10">
-                        <div className="bg-[#1a1a1d] border border-white/10 rounded px-2 py-1 text-[10px] text-white/70 whitespace-nowrap shadow-lg">
-                          <span className={COMPOUND_TEXT[stint.compound]}>
-                            {stint.compound}
-                          </span>{" "}
-                          · {stint.tyre_age} laps
+                        <div className="bg-[var(--bg-dropdown)] border border-[var(--border-strong)] rounded px-2 py-1 text-[10px] text-[var(--text-secondary)] whitespace-nowrap shadow-lg">
+                          {stint.compound} · {stint.tyre_age} laps
                         </div>
                       </div>
                     </div>
                   );
                 })}
               </div>
-              <span className="text-[10px] text-white/20 font-mono w-8 text-right shrink-0">
+              <span className="text-[10px] text-[var(--text-muted)] font-mono w-8 text-right shrink-0">
                 {totalLaps}L
               </span>
             </motion.div>

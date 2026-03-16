@@ -11,16 +11,16 @@ export function AnalysisCard({ question, answer }: Props) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-2xl overflow-hidden"
+      className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--border)] rounded-2xl overflow-hidden"
     >
-      <div className="px-5 py-3 border-b border-white/[0.06]">
-        <span className="text-[10px] uppercase tracking-[2px] text-violet-400/60 font-semibold">
+      <div className="px-5 py-3 border-b border-[var(--border)]">
+        <span className="text-[10px] uppercase tracking-[2px] text-[var(--accent-muted)] font-semibold">
           Analysis
         </span>
-        <p className="text-sm text-white/50 mt-1">{question}</p>
+        <p className="text-sm text-[var(--text-secondary)] mt-1">{question}</p>
       </div>
       <div className="px-5 py-4">
-        <p className="text-sm text-white/80 leading-relaxed">{answer}</p>
+        <p className="text-sm text-[var(--text-primary)] leading-relaxed">{answer}</p>
       </div>
     </motion.div>
   );

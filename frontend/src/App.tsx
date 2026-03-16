@@ -3,11 +3,14 @@ import { ChatPanel } from "./components/ChatPanel";
 import { DashboardSidebar } from "./components/DashboardSidebar";
 import { SessionPicker } from "./components/SessionPicker";
 import { RaceReviewView } from "./components/RaceReviewView";
+import { ThemeToggle } from "./components/ThemeToggle";
 import { useWebSocket } from "./hooks/useWebSocket";
+import { useTheme } from "./hooks/useTheme";
 import type { ChatMessage, RaceContext, Session } from "./lib/types";
 
 function App() {
   const { connected, agentStatus, lastResult, error, loading, sendQuery } = useWebSocket();
+  const { theme, toggle: toggleTheme } = useTheme();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [raceContext, setRaceContext] = useState<RaceContext | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -70,34 +73,37 @@ function App() {
   };
 
   return (
-    <div className="h-screen bg-[#09090b] text-white flex flex-col">
+    <div className="h-screen bg-[var(--bg-root)] text-[var(--text-primary)] flex flex-col transition-colors duration-300">
       {/* Header */}
-      <header className="flex items-center justify-between px-6 py-3 border-b border-white/[0.06]">
+      <header className="flex items-center justify-between px-6 py-3 border-b border-[var(--border)]">
         <div className="flex items-center gap-3">
           <h1 className="text-sm font-semibold tracking-tight">Strategy</h1>
           <SessionPicker selected={session} onSelect={handleSessionSelect} />
           {isHistorical ? (
             <button
               onClick={handleClearSession}
-              className="text-[10px] text-white/30 uppercase tracking-widest hover:text-white/50 transition-colors"
+              className="text-[10px] text-[var(--text-muted)] uppercase tracking-widest hover:text-[var(--text-secondary)] transition-colors"
             >
               &larr; Live
             </button>
           ) : (
             connected && (
-              <span className="text-[10px] text-violet-400/60 uppercase tracking-widest bg-violet-500/10 px-2 py-0.5 rounded">
+              <span className="text-[10px] text-[var(--accent-muted)] uppercase tracking-widest bg-[var(--accent-bg)] px-2 py-0.5 rounded">
                 Live
               </span>
             )
           )}
         </div>
-        <div className="flex items-center gap-2">
-          <div className={`w-1.5 h-1.5 rounded-full ${connected ? "bg-green-500" : "bg-red-500"}`} />
-          <span className="text-[10px] text-white/30">{connected ? "Connected" : "Disconnected"}</span>
+        <div className="flex items-center gap-3">
+          <ThemeToggle theme={theme} onToggle={toggleTheme} />
+          <div className="flex items-center gap-2">
+            <div className={`w-1.5 h-1.5 rounded-full ${connected ? "bg-green-500" : "bg-red-500"}`} />
+            <span className="text-[10px] text-[var(--text-muted)]">{connected ? "Connected" : "Disconnected"}</span>
+          </div>
         </div>
       </header>
 
-      {/* Main content — switches based on mode */}
+      {/* Main content */}
       {isHistorical ? (
         <RaceReviewView
           session={session}
@@ -115,7 +121,7 @@ function App() {
               agentStatus={agentStatus}
             />
           </main>
-          <div className="border-l border-white/[0.06]">
+          <div className="border-l border-[var(--border)]">
             <DashboardSidebar context={raceContext} />
           </div>
         </div>
@@ -123,7 +129,7 @@ function App() {
 
       {/* Error banner */}
       {error && (
-        <div className="px-6 py-2 bg-red-500/10 border-t border-red-500/20 text-red-400 text-xs">
+        <div className="px-6 py-2 bg-[var(--bg-error)] border-t border-[var(--border-error)] text-red-500 text-xs">
           {error}
         </div>
       )}
