@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Thermometer, Wind, CloudRain, Send, Loader2 } from "lucide-react";
+import { Thermometer, Wind, CloudRain, Send, Loader2, AlertCircle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ type Props = {
 export function RaceReviewView({ session, onAsk, loading, lastAnswer }: Props) {
   const [summary, setSummary] = useState<RaceSummary | null>(null);
   const [fetching, setFetching] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
   const [pendingQuestion, setPendingQuestion] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -36,6 +37,7 @@ export function RaceReviewView({ session, onAsk, loading, lastAnswer }: Props) {
   useEffect(() => {
     let cancelled = false;
     setFetching(true);
+    setFetchError(null);
     setSummary(null);
     setAnalyses([]);
     setSuggestions([]);
@@ -53,7 +55,11 @@ export function RaceReviewView({ session, onAsk, loading, lastAnswer }: Props) {
         setSuggestions(sugg);
         setRaceEvents(events);
       })
-      .catch(() => { if (!cancelled) setSummary(null); })
+      .catch((err) => {
+        if (cancelled) return;
+        setSummary(null);
+        setFetchError(err instanceof Error ? err.message : "Failed to load race data. Is the backend running?");
+      })
       .finally(() => { if (!cancelled) setFetching(false); });
 
     return () => { cancelled = true; };
@@ -126,8 +132,8 @@ export function RaceReviewView({ session, onAsk, loading, lastAnswer }: Props) {
         </motion.div>
       </div>
 
-      {/* Split layout: Data tabs (left) + Analysis panel (right) */}
-      <div className="flex-1 flex min-h-0">
+      {/* Split layout: Data tabs (left) + Analysis panel (right), stacks on mobile */}
+      <div className="flex-1 flex flex-col lg:flex-row min-h-0">
         {/* Left: Data tabs */}
         <div className="flex-1 flex flex-col min-h-0 min-w-0">
           {fetching ? (
@@ -165,6 +171,31 @@ export function RaceReviewView({ session, onAsk, loading, lastAnswer }: Props) {
                 </div>
               </div>
             </Tabs>
+          ) : fetchError ? (
+            <div className="flex-1 flex items-center justify-center p-6">
+              <div className="flex flex-col items-center gap-3 text-center max-w-sm">
+                <AlertCircle size={24} className="text-red-500" />
+                <p className="text-sm text-red-400">{fetchError}</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setFetchError(null);
+                    setFetching(true);
+                    Promise.all([
+                      fetchRaceSummary(session.session_key),
+                      fetchSuggestions(session.session_key),
+                      fetchRaceEvents(session.session_key),
+                    ])
+                      .then(([sum, sugg, events]) => { setSummary(sum); setSuggestions(sugg); setRaceEvents(events); })
+                      .catch((err) => { setFetchError(err instanceof Error ? err.message : "Failed to load race data"); })
+                      .finally(() => setFetching(false));
+                  }}
+                >
+                  Retry
+                </Button>
+              </div>
+            </div>
           ) : (
             <div className="flex-1 flex items-center justify-center">
               <p className="text-muted-foreground text-sm">No data available for this session</p>
@@ -173,7 +204,7 @@ export function RaceReviewView({ session, onAsk, loading, lastAnswer }: Props) {
         </div>
 
         {/* Right: Analysis panel */}
-        <div className="w-[400px] border-l border-border flex flex-col min-h-0">
+        <div className="lg:w-[400px] border-t lg:border-t-0 lg:border-l border-border flex flex-col min-h-0 max-h-[50vh] lg:max-h-none">
           <div className="px-4 py-3 border-b border-border">
             <p className="text-[10px] uppercase tracking-[2px] text-muted-foreground font-semibold">Analysis</p>
           </div>

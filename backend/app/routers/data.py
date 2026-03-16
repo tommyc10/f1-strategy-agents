@@ -18,6 +18,11 @@ async def fetch_data(request: DataFetchRequest):
 
 @router.get("/sessions")
 async def list_sessions(year: int | None = None):
+    cache_key = f"sessions:{year or 'all'}"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
+
     async with httpx.AsyncClient() as client:
         params = {"session_type": "Race"}
         if year:
@@ -28,7 +33,7 @@ async def list_sessions(year: int | None = None):
         now = datetime.now(timezone.utc).isoformat()
         past = [s for s in results if s.get("date_start", "") <= now]
 
-        return [
+        sessions = [
             {
                 "session_key": str(s["session_key"]),
                 "date": s.get("date_start", "")[:10],
@@ -38,6 +43,9 @@ async def list_sessions(year: int | None = None):
             }
             for s in reversed(past)  # most recent first
         ]
+
+    cache.put(cache_key, sessions)
+    return sessions
 
 
 @router.get("/drivers", response_model=DriversResponse)
