@@ -46,7 +46,7 @@ def test_format_historical_context_includes_all_laps(sample_race_context):
     result = _format_historical_context(sample_race_context, "When should Hamilton have pitted?")
     assert "HAM" in result
     assert all(str(lap.lap_number) in result or "lap" in result for lap in sample_race_context.laps if lap.driver == "HAM")
-    assert "HISTORICAL RACE" in result
+    assert "STRATEGIC RACE ANALYSIS" in result
 
 
 def test_format_historical_context_includes_lap_ranges(sample_race_context):
@@ -73,7 +73,7 @@ def test_format_historical_context_fallback_to_top_5(sample_race_context):
 def test_format_historical_context_includes_final_classification(sample_race_context):
     """_format_historical_context should include final classification (positions)."""
     result = _format_historical_context(sample_race_context, "When should Hamilton have pitted?")
-    assert "Final Classification" in result
+    assert "Race Classification & Final Positions" in result
     assert "P1 HAM" in result
 
 
@@ -89,7 +89,7 @@ async def test_analyse_historical_uses_historical_prompt(sample_race_context):
         assert mock_gen.called
         call_args = mock_gen.call_args
         prompt = call_args[0][0]
-        assert "POST-RACE analysis" in prompt  # Unique to historical prompt
+        assert "THINK LIKE A STRATEGIST" in prompt  # Unique to historical prompt
 
 
 @pytest.mark.asyncio

@@ -50,29 +50,29 @@ def _filter_drivers_in_question(question: str, context: RaceContext) -> set[str]
 
 
 def _format_historical_context(context: RaceContext, question: str) -> str:
-    """Format race context for historical analysis with full lap data and stint ranges."""
-    lines = ["HISTORICAL RACE"]
+    """Format race context for STRATEGIC analysis (not data analysis)."""
+    lines = ["STRATEGIC RACE ANALYSIS"]
     lines.append(f"Session: {context.session_key}")
 
-    if context.positions:
-        lines.append("\nFinal Classification:")
-        for p in context.positions[:10]:  # Show top 10 for context
-            lines.append(f"  P{p.position} {p.driver} — gap to leader: {p.gap_to_leader}s")
-
-    # Filter laps to drivers mentioned in question, or top 5 if none found
+    # Filter laps to drivers mentioned in question, or top 6 if none found
     target_drivers = _filter_drivers_in_question(question, context)
-    filtered_laps = [lap for lap in context.laps if lap.driver in target_drivers]
 
+    # Build a strategic race narrative
+    lines.append("\nRace Classification & Final Positions:")
+    if context.positions:
+        for p in context.positions[:10]:  # Top 10
+            gap_str = f" +{p.gap_to_leader}s behind" if p.gap_to_leader > 0 else " LEADER"
+            lines.append(f"  P{p.position} {p.driver}{gap_str}")
+
+    # Strategy summary: Who pitted when
     if context.stints:
-        lines.append("\nTyre Stints — Top 6 Drivers (for competitive context):")
-        # Group stints by driver for easier pit lap identification
+        lines.append("\nPit Strategy Summary (Top 6 Drivers):")
         stints_by_driver = {}
         for s in context.stints:
             if s.driver not in stints_by_driver:
                 stints_by_driver[s.driver] = []
             stints_by_driver[s.driver].append(s)
 
-        # Show only top 6 drivers to reduce context size
         top_drivers = [p.driver for p in context.positions[:6]] if context.positions else list(stints_by_driver.keys())[:6]
         for driver in sorted(set(top_drivers) & set(stints_by_driver.keys())):
             driver_stints = sorted(stints_by_driver[driver], key=lambda x: x.stint_number)
@@ -80,51 +80,59 @@ def _format_historical_context(context: RaceContext, question: str) -> str:
             for i, s in enumerate(driver_stints):
                 if i > 0:  # Pit lap is start of next stint
                     pit_laps.append(str(s.lap_start))
-            pit_summary = f", pitted laps: {', '.join(pit_laps)}" if pit_laps else ""
-            lines.append(f"  {driver}: {' → '.join([f'{s.compound.value}({s.tyre_age}L)' for s in driver_stints])}{pit_summary}")
 
+            # Format: Driver: S1 (Compound, Laps) → S2 (Compound, Laps), Pitted on lap X
+            stints_str = " → ".join([f"S{s.stint_number} {s.compound.value}({s.tyre_age}L)" for s in driver_stints])
+            pit_str = f", pitted lap {pit_laps[0]}" if pit_laps else ""
+            final_pos = next((p.position for p in context.positions if p.driver == driver), "DNF")
+            lines.append(f"  {driver}: {stints_str}{pit_str} → P{final_pos}")
+
+    # Target driver lap analysis
+    filtered_laps = [lap for lap in context.laps if lap.driver in target_drivers]
     if filtered_laps:
-        # Group laps by driver to show degradation trends
+        lines.append(f"\nLap Pace Analysis (Target Drivers: {', '.join(target_drivers)}):")
+        lines.append("  (showing pace trends and degradation patterns)")
+
         laps_by_driver = {}
         for lap in filtered_laps:
             if lap.driver not in laps_by_driver:
                 laps_by_driver[lap.driver] = []
             laps_by_driver[lap.driver].append(lap)
 
-        # Limit to last 45 laps per driver to keep context manageable
-        lines.append(f"\nLap Times ({', '.join(target_drivers)}) — Last 45 laps (showing degradation trends):")
+        # Limit to last 50 laps
         for driver in sorted(laps_by_driver.keys()):
-            driver_laps = sorted(laps_by_driver[driver], key=lambda x: x.lap_number)[-45:]
-            lines.append(f"  {driver}:")
-            # Group into stint windows for clarity
+            driver_laps = sorted(laps_by_driver[driver], key=lambda x: x.lap_number)[-50:]
+
             if driver in [s.driver for s in context.stints]:
                 driver_stints = [s for s in context.stints if s.driver == driver]
+                lines.append(f"  {driver}:")
+
                 for stint in sorted(driver_stints, key=lambda x: x.stint_number):
                     stint_laps = [l for l in driver_laps if stint.lap_start <= l.lap_number <= stint.lap_end]
                     if stint_laps:
-                        lines.append(f"    Stint {stint.stint_number} ({stint.compound.value}, laps {stint.lap_start}–{stint.lap_end}):")
-                        for i, lap in enumerate(stint_laps):
-                            degradation = ""
-                            if i > 0:
-                                prev_time = stint_laps[i - 1].lap_time
-                                delta = lap.lap_time - prev_time
-                                if abs(delta) > 0.02:
-                                    degradation = f" ({delta:+.3f}s)" if delta > 0 else f" ({delta:.3f}s)"
-                            lines.append(f"      lap {lap.lap_number}: {lap.lap_time:.3f}s{degradation}")
-            else:
-                # Fallback for drivers without stint data
-                for i, lap in enumerate(driver_laps):
-                    degradation = ""
-                    if i > 0:
-                        prev_time = driver_laps[i - 1].lap_time
-                        delta = lap.lap_time - prev_time
-                        if delta > 0.05:
-                            degradation = f" (+{delta:.3f}s)"
-                    lines.append(f"    lap {lap.lap_number}: {lap.lap_time:.3f}s{degradation}")
+                        # Calculate pace trend for this stint
+                        if len(stint_laps) > 3:
+                            early_pace = sum(l.lap_time for l in stint_laps[:3]) / 3
+                            late_pace = sum(l.lap_time for l in stint_laps[-3:]) / 3
+                            degradation = late_pace - early_pace
+                            trend = f" (degrading {abs(degradation):.3f}s over stint)" if degradation > 0.01 else f" (stable pace)"
+                        else:
+                            trend = ""
+
+                        lines.append(f"    Stint {stint.stint_number} ({stint.compound.value}, laps {stint.lap_start}–{stint.lap_end}){trend}")
+                        # Show a few key laps: first 3, middle, last 3
+                        sample_indices = list(range(min(3, len(stint_laps)))) + [len(stint_laps)//2] + list(range(max(0, len(stint_laps)-3), len(stint_laps)))
+                        sample_indices = sorted(set(sample_indices))
+
+                        for idx in sample_indices:
+                            if idx < len(stint_laps):
+                                lap = stint_laps[idx]
+                                pace = f" {lap.lap_time:.3f}s"
+                                lines.append(f"      L{lap.lap_number}:{pace}")
 
     if context.weather:
         w = context.weather
-        lines.append(f"\nWeather: track {w.track_temp}°C, air {w.air_temp}°C, rain risk {w.rain_risk}%")
+        lines.append(f"\nRace Conditions: {w.track_temp}°C track, {w.air_temp}°C air, {w.rain_risk}% rain risk")
 
     return "\n".join(lines)
 
