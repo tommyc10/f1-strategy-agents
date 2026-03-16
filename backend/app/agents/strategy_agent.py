@@ -10,6 +10,9 @@ logger = logging.getLogger(__name__)
 PROMPT_PATH = Path(__file__).parent.parent / "prompts" / "strategy_system.txt"
 SYSTEM_PROMPT = PROMPT_PATH.read_text()
 
+HISTORICAL_PROMPT_PATH = Path(__file__).parent.parent / "prompts" / "historical_analysis_system.txt"
+HISTORICAL_SYSTEM_PROMPT = HISTORICAL_PROMPT_PATH.read_text()
+
 
 def _format_race_context(context: RaceContext) -> str:
     lines = [f"Session: {context.session_key}"]
@@ -27,6 +30,47 @@ def _format_race_context(context: RaceContext) -> str:
     if context.laps:
         lines.append("\nRecent Laps:")
         for lap in context.laps[-10:]:
+            lines.append(f"  {lap.driver} lap {lap.lap_number}: {lap.lap_time:.3f}s")
+
+    if context.weather:
+        w = context.weather
+        lines.append(f"\nWeather: track {w.track_temp}°C, air {w.air_temp}°C, rain risk {w.rain_risk}%")
+
+    return "\n".join(lines)
+
+
+def _filter_drivers_in_question(question: str, context: RaceContext) -> set[str]:
+    """Extract driver codes mentioned in the question. Fall back to top 5 if none found."""
+    mentioned = set()
+    question_upper = question.upper()
+    for p in context.positions[:20]:  # check top 20 drivers
+        if p.driver in question_upper:
+            mentioned.add(p.driver)
+    return mentioned if mentioned else {p.driver for p in context.positions[:5]}
+
+
+def _format_historical_context(context: RaceContext, question: str) -> str:
+    """Format race context for historical analysis with full lap data and stint ranges."""
+    lines = ["HISTORICAL RACE"]
+    lines.append(f"Session: {context.session_key}")
+
+    if context.positions:
+        lines.append("\nFinal Classification:")
+        for p in context.positions:
+            lines.append(f"  P{p.position} {p.driver} — gap to leader: {p.gap_to_leader}s")
+
+    # Filter laps to drivers mentioned in question, or top 5 if none found
+    target_drivers = _filter_drivers_in_question(question, context)
+    filtered_laps = [lap for lap in context.laps if lap.driver in target_drivers]
+
+    if context.stints:
+        lines.append("\nTyre Stints (all):")
+        for s in context.stints:
+            lines.append(f"  {s.driver} — stint {s.stint_number}: laps {s.lap_start}–{s.lap_end} ({s.compound.value}, {s.tyre_age} laps)")
+
+    if filtered_laps:
+        lines.append(f"\nLap Times ({', '.join(target_drivers)}):")
+        for lap in filtered_laps:
             lines.append(f"  {lap.driver} lap {lap.lap_number}: {lap.lap_time:.3f}s")
 
     if context.weather:
@@ -70,6 +114,24 @@ async def analyse_strategy(question: str, race_context: RaceContext) -> Strategy
     if not raw_response:
         return StrategyOutput(
             reasoning="Strategy analysis unavailable — LLM returned no response.",
+            recommendation=Recommendation.FLEXIBLE,
+            confidence=Confidence.LOW,
+        )
+
+    return _parse_response(raw_response)
+
+
+async def analyse_historical(question: str, race_context: RaceContext) -> StrategyOutput:
+    """Analyze a historical race using retrospective analysis prompt with full lap data."""
+    context_text = _format_historical_context(race_context, question)
+    user_message = f"{context_text}\n\nAnalyze: {question}"
+
+    raw_response = await generate_strategy(HISTORICAL_SYSTEM_PROMPT, user_message)
+    logger.info("Gemini historical analysis response:\n%s", raw_response[:500])
+
+    if not raw_response:
+        return StrategyOutput(
+            reasoning="Historical analysis unavailable — LLM returned no response.",
             recommendation=Recommendation.FLEXIBLE,
             confidence=Confidence.LOW,
         )

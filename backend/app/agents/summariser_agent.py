@@ -18,12 +18,18 @@ CONFIDENCE_SUFFIX = {
 }
 
 
-async def create_briefing(strategy: StrategyOutput, context: RaceContext) -> str:
+async def create_briefing(strategy: StrategyOutput, context: RaceContext, is_historical: bool = False) -> str:
+    reasoning = strategy.reasoning.strip()
+
+    # For historical analysis, return full reasoning without radio-style formatting or truncation
+    if is_historical:
+        return reasoning
+
+    # For live race: radio-style prefix + reasoning + confidence suffix
     prefix = CALL_PREFIX.get(strategy.recommendation, CALL_PREFIX[Recommendation.FLEXIBLE])
     suffix = CONFIDENCE_SUFFIX[strategy.confidence]
 
-    # Use the actual LLM reasoning, trimmed to keep it radio-concise
-    reasoning = strategy.reasoning.strip()
+    # Trim to keep it radio-concise
     if len(reasoning) > 300:
         reasoning = reasoning[:297] + "..."
 

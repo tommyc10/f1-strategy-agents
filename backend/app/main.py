@@ -3,7 +3,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import data, strategy, summariser, orchestrator, fastf1_router
 from app.agents.data_agent import fetch_race_context
-from app.agents.strategy_agent import analyse_strategy
+from app.agents.strategy_agent import analyse_strategy, analyse_historical
 from app.agents.summariser_agent import create_briefing
 
 logging.basicConfig(level=logging.INFO)
@@ -45,6 +45,7 @@ async def websocket_endpoint(ws: WebSocket):
 
             question = data_msg.get("question", "")
             session_key = data_msg.get("session_key")
+            is_historical = data_msg.get("is_historical", False)
 
             for agent in ["data", "strategy", "summariser"]:
                 await ws.send_json({"type": "status", "agent": agent, "state": "pending"})
@@ -55,11 +56,14 @@ async def websocket_endpoint(ws: WebSocket):
                 await ws.send_json({"type": "status", "agent": "data", "state": "complete"})
 
                 await ws.send_json({"type": "status", "agent": "strategy", "state": "running"})
-                strategy_output = await analyse_strategy(question, race_context)
+                if is_historical:
+                    strategy_output = await analyse_historical(question, race_context)
+                else:
+                    strategy_output = await analyse_strategy(question, race_context)
                 await ws.send_json({"type": "status", "agent": "strategy", "state": "complete"})
 
                 await ws.send_json({"type": "status", "agent": "summariser", "state": "running"})
-                briefing = await create_briefing(strategy_output, race_context)
+                briefing = await create_briefing(strategy_output, race_context, is_historical=is_historical)
                 await ws.send_json({"type": "status", "agent": "summariser", "state": "complete"})
 
                 await ws.send_json({

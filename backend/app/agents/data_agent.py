@@ -55,6 +55,8 @@ def _parse_stints(raw_stints: list, driver_lookup: dict[int, str]) -> list[TyreS
             compound=TyreCompound(compound),
             tyre_age=lap_end - lap_start,
             stint_number=s.get("stint_number", 1),
+            lap_start=lap_start,
+            lap_end=lap_end,
         ))
     return stints
 

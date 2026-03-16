@@ -15,6 +15,8 @@ class TyreStint(BaseModel):
     compound: TyreCompound
     tyre_age: int
     stint_number: int
+    lap_start: int = 0
+    lap_end: int = 0
 
 
 class LapTime(BaseModel):
@@ -80,6 +82,7 @@ class SummariserResponse(BaseModel):
 class OrchestratorRequest(BaseModel):
     question: str
     session_key: str | None = None
+    is_historical: bool = False
 
 
 class OrchestratorResponse(BaseModel):

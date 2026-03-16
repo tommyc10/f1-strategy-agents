@@ -4,7 +4,7 @@ from app.models.schemas import (
     OrchestratorRequest, OrchestratorResponse, RaceContext,
 )
 from app.agents.data_agent import fetch_race_context
-from app.agents.strategy_agent import analyse_strategy
+from app.agents.strategy_agent import analyse_strategy, analyse_historical
 from app.agents.summariser_agent import create_briefing
 
 logger = logging.getLogger(__name__)
@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/orchestrator", tags=["orchestrator"])
 
 
-async def run_pipeline(question: str, session_key: str | None = None) -> OrchestratorResponse:
+async def run_pipeline(question: str, session_key: str | None = None, is_historical: bool = False) -> OrchestratorResponse:
     try:
         race_context = await fetch_race_context(session_key=session_key)
     except Exception as e:
@@ -24,7 +24,10 @@ async def run_pipeline(question: str, session_key: str | None = None) -> Orchest
         )
 
     try:
-        strategy_output = await analyse_strategy(question, race_context)
+        if is_historical:
+            strategy_output = await analyse_historical(question, race_context)
+        else:
+            strategy_output = await analyse_strategy(question, race_context)
     except Exception as e:
         logger.error("Strategy agent failed: %s", e)
         return OrchestratorResponse(
@@ -34,7 +37,7 @@ async def run_pipeline(question: str, session_key: str | None = None) -> Orchest
         )
 
     try:
-        briefing = await create_briefing(strategy_output, race_context)
+        briefing = await create_briefing(strategy_output, race_context, is_historical=is_historical)
     except Exception as e:
         logger.error("Summariser agent failed: %s", e)
         briefing = f"Raw strategy: {strategy_output.reasoning}"
@@ -48,4 +51,4 @@ async def run_pipeline(question: str, session_key: str | None = None) -> Orchest
 
 @router.post("/query", response_model=OrchestratorResponse)
 async def query(request: OrchestratorRequest):
-    return await run_pipeline(request.question, request.session_key)
+    return await run_pipeline(request.question, request.session_key, request.is_historical)

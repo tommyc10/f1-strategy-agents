@@ -36,7 +36,7 @@ function App() {
   const handleHistoricalAsk = useCallback(
     (question: string) => {
       setLastBriefing(null);
-      sendQuery(question, session?.session_key);
+      sendQuery(question, session?.session_key, true);
     },
     [sendQuery, session],
   );
