@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import httpx
 from app.services import openf1
@@ -8,6 +9,9 @@ from app.models.schemas import (
 from app.models.types import TyreCompound
 
 logger = logging.getLogger(__name__)
+
+# In-flight request deduplication: concurrent callers for the same session share one fetch
+_inflight: dict[str, asyncio.Task] = {}
 
 
 def _build_driver_lookup(raw_drivers: list) -> dict[int, str]:
@@ -136,46 +140,19 @@ def _filter_context_by_drivers(context: RaceContext, driver_codes: set[str]) -> 
     )
 
 
-async def fetch_race_context(
-    session_key: str | None = None,
-    drivers: list[str] | None = None,
-) -> RaceContext:
-    import asyncio
-
+async def _fetch_race_context_impl(session_key: str) -> RaceContext:
+    """Fetch all race data from OpenF1 and build a RaceContext. No caching here."""
     async with httpx.AsyncClient() as client:
-        if not session_key:
-            session = await openf1.fetch_latest_session(client)
-            if not session:
-                return _empty_context()
-            session_key = str(session["session_key"])
-
-        cache_key = f"race_context:{session_key}"
-        cached = cache.get(cache_key)
-        if cached is not None:
-            context = cached
-            if drivers:
-                return _filter_context_by_drivers(context, set(drivers))
-            return context
-
         raw_drivers = await openf1.fetch_drivers(client, session_key)
         driver_lookup = _build_driver_lookup(raw_drivers)
 
-        # Fetch remaining data sequentially with small delays to respect rate limits
         raw_positions = await openf1.fetch_positions(client, session_key)
-        await asyncio.sleep(0.3)  # 300ms delay between requests
-
         raw_intervals = await openf1.fetch_intervals(client, session_key)
-        await asyncio.sleep(0.3)
-
         raw_stints = await openf1.fetch_stints(client, session_key)
-        await asyncio.sleep(0.3)
-
         raw_laps = await openf1.fetch_laps(client, session_key)
-        await asyncio.sleep(0.3)
-
         raw_weather = await openf1.fetch_weather(client, session_key)
 
-        context = RaceContext(
+        return RaceContext(
             session_key=session_key,
             positions=_parse_positions(raw_positions, raw_intervals, driver_lookup),
             stints=_parse_stints(raw_stints, driver_lookup),
@@ -184,8 +161,39 @@ async def fetch_race_context(
             weather=_parse_weather(raw_weather),
         )
 
-        cache.put(cache_key, context)
 
+async def fetch_race_context(
+    session_key: str | None = None,
+    drivers: list[str] | None = None,
+) -> RaceContext:
+    if not session_key:
+        async with httpx.AsyncClient() as client:
+            session = await openf1.fetch_latest_session(client)
+            if not session:
+                return _empty_context()
+            session_key = str(session["session_key"])
+
+    cache_key = f"race_context:{session_key}"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        context = cached
         if drivers:
             return _filter_context_by_drivers(context, set(drivers))
         return context
+
+    # Deduplicate: if a fetch is already in-flight for this key, await it
+    if cache_key in _inflight:
+        logger.info("Joining in-flight request for %s", cache_key)
+        context = await _inflight[cache_key]
+    else:
+        task = asyncio.create_task(_fetch_race_context_impl(session_key))
+        _inflight[cache_key] = task
+        try:
+            context = await task
+            cache.put(cache_key, context)
+        finally:
+            _inflight.pop(cache_key, None)
+
+    if drivers:
+        return _filter_context_by_drivers(context, set(drivers))
+    return context

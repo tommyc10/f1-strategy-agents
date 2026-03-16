@@ -34,6 +34,7 @@ export function RaceReviewView({ session, onAsk, loading, lastAnswer }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    let cancelled = false;
     setFetching(true);
     setSummary(null);
     setAnalyses([]);
@@ -47,12 +48,15 @@ export function RaceReviewView({ session, onAsk, loading, lastAnswer }: Props) {
       fetchRaceEvents(session.session_key),
     ])
       .then(([sum, sugg, events]) => {
+        if (cancelled) return;
         setSummary(sum);
         setSuggestions(sugg);
         setRaceEvents(events);
       })
-      .catch(() => setSummary(null))
-      .finally(() => setFetching(false));
+      .catch(() => { if (!cancelled) setSummary(null); })
+      .finally(() => { if (!cancelled) setFetching(false); });
+
+    return () => { cancelled = true; };
   }, [session.session_key]);
 
   useEffect(() => {

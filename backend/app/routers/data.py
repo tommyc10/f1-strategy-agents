@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from app.models.schemas import DataFetchRequest, DataFetchResponse, DriversResponse, Driver
 from app.agents.data_agent import fetch_race_context
-from app.services import openf1
+from app.services import openf1, cache
 import httpx
 
 router = APIRouter(prefix="/data", tags=["data"])
@@ -103,6 +103,11 @@ async def get_suggestions(session_key: str):
 
 @router.get("/race-events")
 async def get_race_events(session_key: str):
+    cache_key = f"race_events:{session_key}"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
+
     async with httpx.AsyncClient() as client:
         raw = await openf1.fetch_race_control(client, session_key)
 
@@ -116,6 +121,8 @@ async def get_race_events(session_key: str):
                 "flag": msg.get("flag", ""),
                 "message": msg.get("message", ""),
             })
+
+    cache.put(cache_key, events)
     return events
 
 
