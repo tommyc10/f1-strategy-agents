@@ -126,6 +126,8 @@ async def fetch_race_context(
     session_key: str | None = None,
     drivers: list[str] | None = None,
 ) -> RaceContext:
+    import asyncio
+
     async with httpx.AsyncClient() as client:
         if not session_key:
             session = await openf1.fetch_latest_session(client)
@@ -140,11 +142,22 @@ async def fetch_race_context(
             driver_codes = set(drivers)
             driver_lookup = {k: v for k, v in driver_lookup.items() if v in driver_codes}
 
+        # Fetch remaining data sequentially with small delays to respect rate limits
         raw_positions = await openf1.fetch_positions(client, session_key)
+        await asyncio.sleep(0.3)  # 300ms delay between requests
+
         raw_intervals = await openf1.fetch_intervals(client, session_key)
+        await asyncio.sleep(0.3)
+
         raw_stints = await openf1.fetch_stints(client, session_key)
+        await asyncio.sleep(0.3)
+
         raw_laps = await openf1.fetch_laps(client, session_key)
+        await asyncio.sleep(0.3)
+
         raw_sectors = await openf1.fetch_sectors(client, session_key)
+        await asyncio.sleep(0.3)
+
         raw_weather = await openf1.fetch_weather(client, session_key)
 
         return RaceContext(
