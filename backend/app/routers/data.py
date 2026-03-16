@@ -83,5 +83,6 @@ async def race_summary(session_key: str):
         "positions": [p.model_dump() for p in context.positions],
         "strategy_map": strategy_map,
         "weather": context.weather.model_dump() if context.weather else None,
+        "sectors": [s.model_dump() for s in context.sectors],
         "total_drivers": len(context.positions),
     }

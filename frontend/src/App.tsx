@@ -46,6 +46,8 @@ function App() {
 
     setLastBriefing(lastResult.briefing);
 
+    setRaceContext(lastResult.race_context);
+
     if (!isHistorical) {
       const engineerMsg: ChatMessage = {
         id: crypto.randomUUID(),
@@ -54,7 +56,6 @@ function App() {
         timestamp: Date.now(),
       };
       setMessages((prev) => [...prev, engineerMsg]);
-      setRaceContext(lastResult.race_context);
     }
   }, [lastResult, isHistorical]);
 

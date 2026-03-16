@@ -19,8 +19,12 @@ export function AnalysisCard({ question, answer }: Props) {
         </span>
         <p className="text-sm text-[var(--text-secondary)] mt-1">{question}</p>
       </div>
-      <div className="px-5 py-4">
-        <p className="text-sm text-[var(--text-primary)] leading-relaxed">{answer}</p>
+      <div className="px-5 py-4 space-y-3">
+        {answer.split("\n").filter(Boolean).map((paragraph, i) => (
+          <p key={i} className="text-sm text-[var(--text-primary)] leading-relaxed">
+            {paragraph}
+          </p>
+        ))}
       </div>
     </motion.div>
   );

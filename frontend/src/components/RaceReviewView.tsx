@@ -94,18 +94,18 @@ export function RaceReviewView({ session, onAsk, loading, lastAnswer, raceContex
           <div className="lg:col-span-2 flex flex-col gap-4">
             <StrategyMap strategyMap={summary.strategy_map} />
 
-            {raceContext && raceContext.sectors && raceContext.sectors.length > 0 && (
-              <SectorBreakdown
-                sectors={raceContext.sectors}
-                drivers={raceContext.positions.slice(0, 5).map((p) => p.driver)}
-              />
-            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {summary.sectors && summary.sectors.length > 0 && (
+                <SectorBreakdown
+                  sectors={summary.sectors}
+                  drivers={summary.positions.slice(0, 5).map((p) => p.driver)}
+                />
+              )}
 
-            {summary.weather && (
-              <div className="max-w-xs">
+              {summary.weather && (
                 <WeatherCard weather={summary.weather} />
-              </div>
-            )}
+              )}
+            </div>
 
             {analyses.map((a) => (
               <AnalysisCard key={a.id} question={a.question} answer={a.answer} />

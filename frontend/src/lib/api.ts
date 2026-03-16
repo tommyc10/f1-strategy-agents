@@ -29,6 +29,7 @@ export type RaceSummary = {
   positions: { driver: string; position: number; gap_to_leader: number }[];
   strategy_map: Record<string, { stint_number: number; compound: string; tyre_age: number }[]>;
   weather: { track_temp: number; air_temp: number; rain_risk: number } | null;
+  sectors: { driver: string; lap_number: number; sector_number: number; sector_time: number }[];
   total_drivers: number;
 };
 
