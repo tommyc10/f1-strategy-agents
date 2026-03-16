@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   suggestions: string[];
@@ -12,17 +13,17 @@ export function SuggestedQuestions({ suggestions, onSelect, loading }: Props) {
   return (
     <div className="flex flex-wrap gap-2">
       {suggestions.map((q, i) => (
-        <motion.button
-          key={q}
-          initial={{ opacity: 0, y: 4 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: i * 0.05 }}
-          onClick={() => onSelect(q)}
-          disabled={loading}
-          className="text-[11px] text-[var(--text-secondary)] bg-[var(--f1-accent-bg)] border border-[var(--f1-accent-bg-strong)] rounded-full px-3 py-1.5 hover:bg-[var(--f1-accent-bg-strong)] transition-colors disabled:opacity-40"
-        >
-          {q}
-        </motion.button>
+        <motion.div key={q} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onSelect(q)}
+            disabled={loading}
+            className="text-[11px] rounded-full border-border text-muted-foreground hover:text-foreground hover:bg-accent"
+          >
+            {q}
+          </Button>
+        </motion.div>
       ))}
     </div>
   );

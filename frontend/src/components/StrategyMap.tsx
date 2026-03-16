@@ -1,4 +1,6 @@
 import { motion } from "framer-motion";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 type Stint = {
   stint_number: number;
@@ -30,74 +32,78 @@ export function StrategyMap({
   );
 
   return (
-    <div className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--f1-border)] rounded-2xl overflow-hidden">
-      <div className="px-5 py-3 border-b border-[var(--f1-border)] flex items-center justify-between">
-        <h2 className="text-[10px] uppercase tracking-[2px] text-[var(--f1-accent-muted)] font-semibold">
-          Strategy
-        </h2>
-        <div className="flex items-center gap-3">
-          {["SOFT", "MEDIUM", "HARD"].map((c) => (
-            <div key={c} className="flex items-center gap-1.5">
-              <div className={`w-2 h-2 rounded-full ${COMPOUND_BG[c]}`} />
-              <span className="text-[9px] text-[var(--text-muted)] uppercase">{c[0]}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="p-4 flex flex-col gap-1.5 overflow-x-auto">
-        {drivers.map(([driver, stints], i) => {
-          const totalLaps = stints.reduce((sum, s) => sum + s.tyre_age, 0);
-          return (
-            <motion.div
-              key={driver}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: i * 0.015 }}
-              className="flex items-center gap-3"
-            >
-              <span className="w-10 text-xs text-[var(--text-secondary)] font-medium shrink-0">
-                {driver}
-              </span>
-              <div className="flex-1 flex h-5 rounded overflow-hidden items-center">
-                {stints.map((stint, stintIdx) => {
-                  const widthPct = (stint.tyre_age / maxLaps) * 100;
-                  return (
-                    <div key={stint.stint_number} className="flex items-center" style={{ width: `${widthPct}%` }}>
-                      {stintIdx > 0 && stint.lap_start > 0 && (
-                        <div className="flex flex-col items-center mx-px shrink-0">
-                          <span className="text-[7px] text-[var(--f1-accent-muted)] font-mono leading-none">
-                            {stint.lap_start}
-                          </span>
-                          <div className="w-px h-3 bg-[var(--f1-accent)]/40" />
-                        </div>
-                      )}
-                      <div
-                        className={`flex-1 ${COMPOUND_BG[stint.compound] ?? "bg-neutral-500"} opacity-80 hover:opacity-100 transition-opacity relative group h-5 rounded-sm`}
-                      >
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          {stint.tyre_age >= 5 && (
-                            <span className="text-[9px] text-black/60 font-bold">
-                              {stint.tyre_age}
-                            </span>
-                          )}
-                        </div>
-                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block z-10">
-                          <div className="bg-[var(--bg-dropdown)] border border-[var(--f1-border-strong)] rounded px-2 py-1 text-[10px] text-[var(--text-secondary)] whitespace-nowrap shadow-lg">
-                            {stint.compound} · {stint.tyre_age} laps
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+    <TooltipProvider>
+      <Card className="bg-[var(--bg-card)] backdrop-blur-xl border-[var(--f1-border)] rounded-2xl overflow-hidden gap-0 py-0 shadow-none">
+        <CardHeader className="px-5 py-3 border-b border-[var(--f1-border)] flex-row items-center justify-between gap-0 pb-3">
+          <h2 className="text-[10px] uppercase tracking-[2px] text-[var(--f1-accent-muted)] font-semibold">
+            Strategy
+          </h2>
+          <div className="flex items-center gap-3">
+            {["SOFT", "MEDIUM", "HARD"].map((c) => (
+              <div key={c} className="flex items-center gap-1.5">
+                <div className={`w-2 h-2 rounded-full ${COMPOUND_BG[c]}`} />
+                <span className="text-[9px] text-[var(--text-muted)] uppercase">{c[0]}</span>
               </div>
-              <span className="text-[10px] text-[var(--text-muted)] font-mono w-8 text-right shrink-0">
-                {totalLaps}L
-              </span>
-            </motion.div>
-          );
-        })}
-      </div>
-    </div>
+            ))}
+          </div>
+        </CardHeader>
+        <CardContent className="p-4 flex flex-col gap-1.5 overflow-x-auto">
+          {drivers.map(([driver, stints], i) => {
+            const totalLaps = stints.reduce((sum, s) => sum + s.tyre_age, 0);
+            return (
+              <motion.div
+                key={driver}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: i * 0.015 }}
+                className="flex items-center gap-3"
+              >
+                <span className="w-10 text-xs text-[var(--text-secondary)] font-medium shrink-0">
+                  {driver}
+                </span>
+                <div className="flex-1 flex h-5 rounded overflow-hidden items-center">
+                  {stints.map((stint, stintIdx) => {
+                    const widthPct = (stint.tyre_age / maxLaps) * 100;
+                    return (
+                      <div key={stint.stint_number} className="flex items-center" style={{ width: `${widthPct}%` }}>
+                        {stintIdx > 0 && stint.lap_start > 0 && (
+                          <div className="flex flex-col items-center mx-px shrink-0">
+                            <span className="text-[7px] text-[var(--f1-accent-muted)] font-mono leading-none">
+                              {stint.lap_start}
+                            </span>
+                            <div className="w-px h-3 bg-[var(--f1-accent)]/40" />
+                          </div>
+                        )}
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div
+                              className={`flex-1 ${COMPOUND_BG[stint.compound] ?? "bg-neutral-500"} opacity-80 hover:opacity-100 transition-opacity relative h-5 rounded-sm`}
+                            >
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                {stint.tyre_age >= 5 && (
+                                  <span className="text-[9px] text-black/60 font-bold">
+                                    {stint.tyre_age}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent side="top">
+                            {stint.compound} · {stint.tyre_age} laps
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                    );
+                  })}
+                </div>
+                <span className="text-[10px] text-[var(--text-muted)] font-mono w-8 text-right shrink-0">
+                  {totalLaps}L
+                </span>
+              </motion.div>
+            );
+          })}
+        </CardContent>
+      </Card>
+    </TooltipProvider>
   );
 }

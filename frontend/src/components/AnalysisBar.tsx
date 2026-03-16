@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Send } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   onAsk: (question: string) => void;
@@ -18,26 +19,19 @@ export function AnalysisBar({ onAsk, loading, sessionLabel }: Props) {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="border-t border-[var(--f1-border)] px-6 py-3"
-    >
-      <div className="flex items-center gap-3 bg-[var(--bg-input)] border border-[var(--f1-border-strong)] rounded-full px-4 py-2 backdrop-blur-xl">
+    <form onSubmit={handleSubmit} className="border-t border-border px-6 py-3">
+      <div className="flex items-center gap-3 bg-card/50 backdrop-blur-xl border border-border rounded-full px-4 py-2">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder={`Analyse ${sessionLabel}... e.g. "When should Hamilton have pitted?"`}
           disabled={loading}
-          className="flex-1 bg-transparent text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none"
+          className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
         />
-        <button
-          type="submit"
-          disabled={loading || !input.trim()}
-          className="w-8 h-8 rounded-full bg-[var(--f1-accent-bg-strong)] flex items-center justify-center text-[var(--f1-accent)] hover:bg-[var(--f1-accent-bg-strong)] transition-colors disabled:opacity-30"
-        >
+        <Button type="submit" size="icon" variant="ghost" disabled={loading || !input.trim()} className="rounded-full h-8 w-8 text-primary hover:bg-primary/20">
           <Send size={14} />
-        </button>
+        </Button>
       </div>
     </form>
   );

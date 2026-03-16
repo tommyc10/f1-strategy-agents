@@ -1,12 +1,13 @@
 import { useState, useCallback, useEffect } from "react";
-import { ChatPanel } from "./components/ChatPanel";
-import { DashboardSidebar } from "./components/DashboardSidebar";
-import { SessionPicker } from "./components/SessionPicker";
-import { RaceReviewView } from "./components/RaceReviewView";
-import { ThemeToggle } from "./components/ThemeToggle";
-import { useWebSocket } from "./hooks/useWebSocket";
-import { useTheme } from "./hooks/useTheme";
-import type { ChatMessage, RaceContext, Session } from "./lib/types";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { ChatPanel } from "@/components/ChatPanel";
+import { DashboardSidebar } from "@/components/DashboardSidebar";
+import { SessionPicker } from "@/components/SessionPicker";
+import { RaceReviewView } from "@/components/RaceReviewView";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { useWebSocket } from "@/hooks/useWebSocket";
+import { useTheme } from "@/hooks/useTheme";
+import type { ChatMessage, RaceContext, Session } from "@/lib/types";
 
 function App() {
   const { connected, agentStatus, lastResult, error, loading, sendQuery } = useWebSocket();
@@ -81,7 +82,8 @@ function App() {
   };
 
   return (
-    <div className="h-screen bg-[var(--bg-root)] text-[var(--text-primary)] flex flex-col transition-colors duration-300">
+    <TooltipProvider>
+    <div className="h-screen bg-background text-foreground flex flex-col transition-colors duration-300">
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-3 border-b border-[var(--f1-border)]">
         <div className="flex items-center gap-3">
@@ -143,6 +145,7 @@ function App() {
         </div>
       )}
     </div>
+    </TooltipProvider>
   );
 }
 

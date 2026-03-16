@@ -2,6 +2,9 @@ import { useState } from "react";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
 } from "recharts";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 type LapData = {
   driver: string;
@@ -63,8 +66,8 @@ export function LapPaceChart({ laps, drivers }: Props) {
   const yMax = Math.ceil(median + 8);
 
   return (
-    <div className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--f1-border)] rounded-2xl overflow-hidden">
-      <div className="px-5 py-3 border-b border-[var(--f1-border)] flex items-center justify-between flex-wrap gap-2">
+    <Card className="bg-[var(--bg-card)] backdrop-blur-xl border-[var(--f1-border)] rounded-2xl overflow-hidden gap-0 py-0">
+      <CardHeader className="px-5 py-3 border-b border-[var(--f1-border)] flex-row items-center justify-between flex-wrap gap-2 space-y-0 pb-3">
         <h2 className="text-[10px] uppercase tracking-[2px] text-[var(--f1-accent-muted)] font-semibold">
           Lap Pace
         </h2>
@@ -72,24 +75,27 @@ export function LapPaceChart({ laps, drivers }: Props) {
           {drivers.map((driver, i) => {
             const active = selectedDrivers.has(driver);
             return (
-              <button
+              <Button
                 key={driver}
+                variant="ghost"
+                size="sm"
                 onClick={() => toggleDriver(driver)}
-                className={`text-[9px] font-semibold px-2 py-0.5 rounded-full border transition-all ${
+                className={cn(
+                  "text-[9px] font-semibold px-2 py-0.5 h-auto rounded-full border transition-all",
                   active
-                    ? "border-transparent text-white"
-                    : "border-[var(--f1-border)] text-[var(--text-muted)] opacity-40 hover:opacity-70"
-                }`}
+                    ? "border-transparent text-white hover:text-white"
+                    : "border-[var(--f1-border)] text-[var(--text-muted)] opacity-40 hover:opacity-70 hover:bg-transparent"
+                )}
                 style={active ? { backgroundColor: DRIVER_COLORS[i % DRIVER_COLORS.length] } : {}}
               >
                 {driver}
-              </button>
+              </Button>
             );
           })}
         </div>
-      </div>
+      </CardHeader>
 
-      <div className="p-4" style={{ height: 280 }}>
+      <CardContent className="p-4" style={{ height: 280 }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
             <XAxis
@@ -133,7 +139,7 @@ export function LapPaceChart({ laps, drivers }: Props) {
             })}
           </LineChart>
         </ResponsiveContainer>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

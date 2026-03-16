@@ -1,3 +1,5 @@
+import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
+
 type SectorTimeLocal = {
   driver: string;
   lap_number: number;
@@ -13,12 +15,14 @@ type Props = {
 export function SectorBreakdown({ sectors, drivers }: Props) {
   if (sectors.length === 0) {
     return (
-      <div className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--f1-border)] rounded-2xl p-6">
-        <h3 className="text-[10px] uppercase tracking-[2px] text-[var(--f1-accent-muted)] font-semibold mb-4">
-          Sector Analysis
-        </h3>
-        <p className="text-xs text-[var(--text-muted)]">No sector data available</p>
-      </div>
+      <Card className="bg-[var(--bg-card)] backdrop-blur-xl border-[var(--f1-border)] rounded-2xl gap-0 py-0">
+        <CardHeader className="px-6 py-6">
+          <h3 className="text-[10px] uppercase tracking-[2px] text-[var(--f1-accent-muted)] font-semibold mb-4">
+            Sector Analysis
+          </h3>
+          <p className="text-xs text-[var(--text-muted)]">No sector data available</p>
+        </CardHeader>
+      </Card>
     );
   }
 
@@ -66,8 +70,8 @@ export function SectorBreakdown({ sectors, drivers }: Props) {
   };
 
   return (
-    <div className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--f1-border)] rounded-2xl overflow-hidden h-full flex flex-col">
-      <div className="px-5 py-3 border-b border-[var(--f1-border)] flex items-center justify-between">
+    <Card className="bg-[var(--bg-card)] backdrop-blur-xl border-[var(--f1-border)] rounded-2xl overflow-hidden h-full flex flex-col gap-0 py-0">
+      <CardHeader className="px-5 py-3 border-b border-[var(--f1-border)] flex-row items-center justify-between space-y-0 pb-3">
         <h3 className="text-[10px] uppercase tracking-[2px] text-[var(--f1-accent-muted)] font-semibold">
           Sector Pace
         </h3>
@@ -76,9 +80,9 @@ export function SectorBreakdown({ sectors, drivers }: Props) {
           <span>S2</span>
           <span>S3</span>
         </div>
-      </div>
+      </CardHeader>
 
-      <div className="flex-1 divide-y divide-[var(--f1-border)]">
+      <CardContent className="flex-1 divide-y divide-[var(--f1-border)] px-0 pb-0">
         {drivers.map((driver) => {
           const pace = driverPace.get(driver);
           if (!pace || pace.length === 0) return null;
@@ -125,10 +129,10 @@ export function SectorBreakdown({ sectors, drivers }: Props) {
             </div>
           );
         })}
-      </div>
+      </CardContent>
 
       {/* Legend */}
-      <div className="px-5 py-2.5 bg-[var(--bg-card-hover)] border-t border-[var(--f1-border)] flex gap-4 text-[9px] text-[var(--text-muted)]">
+      <CardFooter className="px-5 py-2.5 bg-[var(--bg-card-hover)] border-t border-[var(--f1-border)] flex gap-4 text-[9px] text-[var(--text-muted)]">
         <div className="flex items-center gap-1">
           <div className="w-1.5 h-1.5 rounded-full bg-green-500/80" />
           <span>Best</span>
@@ -141,7 +145,7 @@ export function SectorBreakdown({ sectors, drivers }: Props) {
           <div className="w-1.5 h-1.5 rounded-full bg-orange-500/60" />
           <span>Off-pace</span>
         </div>
-      </div>
-    </div>
+      </CardFooter>
+    </Card>
   );
 }
