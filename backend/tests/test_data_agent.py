@@ -4,7 +4,7 @@ from app.agents.data_agent import fetch_race_context
 from app.models.schemas import RaceContext
 from tests.mock_data import (
     MOCK_SESSION, MOCK_POSITIONS, MOCK_DRIVERS, MOCK_STINTS,
-    MOCK_LAPS, MOCK_WEATHER, MOCK_INTERVALS, MOCK_SECTORS,
+    MOCK_LAPS, MOCK_WEATHER, MOCK_INTERVALS,
 )
 
 
@@ -15,7 +15,6 @@ def _mock_openf1(**overrides):
         "fetch_drivers": AsyncMock(return_value=MOCK_DRIVERS),
         "fetch_stints": AsyncMock(return_value=MOCK_STINTS),
         "fetch_laps": AsyncMock(return_value=MOCK_LAPS),
-        "fetch_sectors": AsyncMock(return_value=MOCK_SECTORS),
         "fetch_weather": AsyncMock(return_value=MOCK_WEATHER),
         "fetch_intervals": AsyncMock(return_value=MOCK_INTERVALS),
     }

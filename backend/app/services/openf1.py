@@ -79,5 +79,3 @@ async def fetch_intervals(client: AsyncClient, session_key: str) -> list:
     return await _get(client, "intervals", {"session_key": session_key})
 
 
-async def fetch_sectors(client: AsyncClient, session_key: str) -> list:
-    return await _get(client, "sectors", {"session_key": session_key})

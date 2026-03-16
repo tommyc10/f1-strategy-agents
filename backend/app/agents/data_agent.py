@@ -83,21 +83,23 @@ def _parse_laps(raw_laps: list, driver_lookup: dict[int, str]) -> list[LapTime]:
     return laps
 
 
-def _parse_sectors(raw_sectors: list, driver_lookup: dict[int, str]) -> list[SectorTime]:
+def _parse_sectors(raw_laps: list, driver_lookup: dict[int, str]) -> list[SectorTime]:
+    """Extract sector times from laps data (duration_sector_1/2/3 fields)."""
     sectors = []
-    for sector in raw_sectors:
-        num = sector.get("driver_number")
-        if num not in driver_lookup or sector.get("sector_duration") is None:
+    for lap in raw_laps:
+        num = lap.get("driver_number")
+        if num not in driver_lookup:
             continue
-        # OpenF1 returns sector_duration in milliseconds; convert to seconds
-        sector_duration_ms = sector["sector_duration"]
-        sector_duration_s = sector_duration_ms / 1000.0 if sector_duration_ms > 10 else sector_duration_ms
-        sectors.append(SectorTime(
-            driver=driver_lookup[num],
-            lap_number=sector.get("lap_number", 0),
-            sector_number=sector.get("sector_number", 0),
-            sector_time=sector_duration_s,
-        ))
+        lap_number = lap.get("lap_number", 0)
+        for sector_num in (1, 2, 3):
+            duration = lap.get(f"duration_sector_{sector_num}")
+            if duration is not None:
+                sectors.append(SectorTime(
+                    driver=driver_lookup[num],
+                    lap_number=lap_number,
+                    sector_number=sector_num,
+                    sector_time=float(duration),
+                ))
     return sectors
 
 
@@ -155,9 +157,6 @@ async def fetch_race_context(
         raw_laps = await openf1.fetch_laps(client, session_key)
         await asyncio.sleep(0.3)
 
-        raw_sectors = await openf1.fetch_sectors(client, session_key)
-        await asyncio.sleep(0.3)
-
         raw_weather = await openf1.fetch_weather(client, session_key)
 
         return RaceContext(
@@ -165,6 +164,6 @@ async def fetch_race_context(
             positions=_parse_positions(raw_positions, raw_intervals, driver_lookup),
             stints=_parse_stints(raw_stints, driver_lookup),
             laps=_parse_laps(raw_laps, driver_lookup),
-            sectors=_parse_sectors(raw_sectors, driver_lookup),
+            sectors=_parse_sectors(raw_laps, driver_lookup),
             weather=_parse_weather(raw_weather),
         )

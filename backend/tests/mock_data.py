@@ -27,9 +27,9 @@ MOCK_STINTS = [
 ]
 
 MOCK_LAPS = [
-    {"driver_number": 4, "lap_number": 33, "lap_duration": 81.234},
-    {"driver_number": 4, "lap_number": 34, "lap_duration": 81.567},
-    {"driver_number": 1, "lap_number": 34, "lap_duration": 80.890},
+    {"driver_number": 4, "lap_number": 33, "lap_duration": 81.234, "duration_sector_1": 26.8, "duration_sector_2": 27.3, "duration_sector_3": 27.134},
+    {"driver_number": 4, "lap_number": 34, "lap_duration": 81.567, "duration_sector_1": 27.1, "duration_sector_2": 27.3, "duration_sector_3": 27.167},
+    {"driver_number": 1, "lap_number": 34, "lap_duration": 80.890, "duration_sector_1": 26.5, "duration_sector_2": 27.2, "duration_sector_3": 27.19},
 ]
 
 MOCK_WEATHER = [
@@ -42,11 +42,3 @@ MOCK_INTERVALS = [
     {"driver_number": 16, "gap_to_leader": 3.4, "interval": 2.2},
 ]
 
-MOCK_SECTORS = [
-    {"driver_number": 1, "lap_number": 34, "sector_number": 1, "sector_duration": 26500},  # 26.5s
-    {"driver_number": 1, "lap_number": 34, "sector_number": 2, "sector_duration": 27200},  # 27.2s
-    {"driver_number": 1, "lap_number": 34, "sector_number": 3, "sector_duration": 27190},  # 27.19s
-    {"driver_number": 4, "lap_number": 34, "sector_number": 1, "sector_duration": 27100},  # 27.1s
-    {"driver_number": 4, "lap_number": 34, "sector_number": 2, "sector_duration": 27300},  # 27.3s
-    {"driver_number": 4, "lap_number": 34, "sector_number": 3, "sector_duration": 27167},  # 27.167s
-]
