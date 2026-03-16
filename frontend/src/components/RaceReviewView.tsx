@@ -1,13 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Thermometer, Wind, CloudRain } from "lucide-react";
+import { Thermometer, Wind, CloudRain, Send, Loader2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { OverviewTab } from "@/components/tabs/OverviewTab";
 import { PaceTab } from "@/components/tabs/PaceTab";
 import { SectorsTab } from "@/components/tabs/SectorsTab";
-import { AnalysisTab } from "@/components/tabs/AnalysisTab";
-import { AnalysisBar } from "@/components/AnalysisBar";
+import { SuggestedQuestions } from "@/components/SuggestedQuestions";
+import { AnalysisCard } from "@/components/AnalysisCard";
 import { fetchRaceSummary, fetchSuggestions, fetchRaceEvents, type RaceSummary, type RaceEvent } from "@/lib/api";
 import type { Session, RaceContext } from "@/lib/types";
 
@@ -29,6 +30,8 @@ export function RaceReviewView({ session, onAsk, loading, lastAnswer }: Props) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [raceEvents, setRaceEvents] = useState<RaceEvent[]>([]);
   const [activeTab, setActiveTab] = useState("overview");
+  const [input, setInput] = useState("");
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setFetching(true);
@@ -59,13 +62,25 @@ export function RaceReviewView({ session, onAsk, loading, lastAnswer }: Props) {
         ...prev,
       ]);
       setPendingQuestion(null);
-      setActiveTab("analysis");
     }
   }, [lastAnswer, pendingQuestion]);
+
+  useEffect(() => {
+    if (analyses.length > 0) {
+      scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [analyses.length]);
 
   const handleAsk = (question: string) => {
     setPendingQuestion(question);
     onAsk(question);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || loading) return;
+    handleAsk(input.trim());
+    setInput("");
   };
 
   const sessionLabel = `${session.location} ${session.year}`;
@@ -107,66 +122,103 @@ export function RaceReviewView({ session, onAsk, loading, lastAnswer }: Props) {
         </motion.div>
       </div>
 
-      {/* Content */}
-      {fetching ? (
-        <div className="flex-1 p-6">
-          <div className="flex flex-col gap-4 max-w-6xl mx-auto">
-            <Skeleton className="h-10 w-80 rounded-lg" />
-            <Skeleton className="h-[200px] rounded-2xl" />
-            <div className="grid grid-cols-2 gap-4">
-              <Skeleton className="h-[160px] rounded-2xl" />
-              <Skeleton className="h-[160px] rounded-2xl" />
+      {/* Split layout: Data tabs (left) + Analysis panel (right) */}
+      <div className="flex-1 flex min-h-0">
+        {/* Left: Data tabs */}
+        <div className="flex-1 flex flex-col min-h-0 min-w-0">
+          {fetching ? (
+            <div className="flex-1 p-6">
+              <div className="flex flex-col gap-4 max-w-6xl mx-auto">
+                <Skeleton className="h-10 w-80 rounded-lg" />
+                <Skeleton className="h-[200px] rounded-2xl" />
+                <div className="grid grid-cols-2 gap-4">
+                  <Skeleton className="h-[160px] rounded-2xl" />
+                  <Skeleton className="h-[160px] rounded-2xl" />
+                </div>
+              </div>
             </div>
-          </div>
+          ) : summary ? (
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
+              <div className="px-6 pt-3">
+                <TabsList className="bg-card/50 backdrop-blur-xl">
+                  <TabsTrigger value="overview">Overview</TabsTrigger>
+                  <TabsTrigger value="pace">Pace</TabsTrigger>
+                  <TabsTrigger value="sectors">Sectors</TabsTrigger>
+                </TabsList>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-6">
+                <div className="max-w-6xl mx-auto">
+                  <TabsContent value="overview" className="mt-0">
+                    <OverviewTab summary={summary} raceEvents={raceEvents} totalLaps={totalLaps} />
+                  </TabsContent>
+                  <TabsContent value="pace" className="mt-0">
+                    <PaceTab summary={summary} />
+                  </TabsContent>
+                  <TabsContent value="sectors" className="mt-0">
+                    <SectorsTab summary={summary} />
+                  </TabsContent>
+                </div>
+              </div>
+            </Tabs>
+          ) : (
+            <div className="flex-1 flex items-center justify-center">
+              <p className="text-muted-foreground text-sm">No data available for this session</p>
+            </div>
+          )}
         </div>
-      ) : summary ? (
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-          <div className="px-6 pt-3">
-            <TabsList className="bg-card/50 backdrop-blur-xl">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="pace">Pace</TabsTrigger>
-              <TabsTrigger value="sectors">Sectors</TabsTrigger>
-              <TabsTrigger value="analysis">
-                Analysis
-                {analyses.length > 0 && (
-                  <span className="ml-1.5 text-[10px] bg-primary/20 text-primary rounded-full px-1.5">
-                    {analyses.length}
-                  </span>
-                )}
-              </TabsTrigger>
-            </TabsList>
+
+        {/* Right: Analysis panel */}
+        <div className="w-[400px] border-l border-border flex flex-col min-h-0">
+          <div className="px-4 py-3 border-b border-border">
+            <p className="text-[10px] uppercase tracking-[2px] text-muted-foreground font-semibold">Analysis</p>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-6">
-            <div className="max-w-6xl mx-auto">
-              <TabsContent value="overview" className="mt-0">
-                <OverviewTab summary={summary} raceEvents={raceEvents} totalLaps={totalLaps} />
-              </TabsContent>
-              <TabsContent value="pace" className="mt-0">
-                <PaceTab summary={summary} />
-              </TabsContent>
-              <TabsContent value="sectors" className="mt-0">
-                <SectorsTab summary={summary} />
-              </TabsContent>
-              <TabsContent value="analysis" className="mt-0">
-                <AnalysisTab
-                  suggestions={suggestions}
-                  analyses={analyses}
-                  loading={loading}
-                  pendingQuestion={pendingQuestion}
-                  onAsk={handleAsk}
-                />
-              </TabsContent>
-            </div>
-          </div>
-        </Tabs>
-      ) : (
-        <div className="flex-1 flex items-center justify-center">
-          <p className="text-muted-foreground text-sm">No data available for this session</p>
-        </div>
-      )}
+          <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+            {loading && pendingQuestion && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground animate-pulse">
+                <Loader2 size={12} className="animate-spin" />
+                <span className="uppercase tracking-widest">Analysing...</span>
+              </div>
+            )}
 
-      <AnalysisBar onAsk={handleAsk} loading={loading} sessionLabel={sessionLabel} />
+            {analyses.map((a) => (
+              <AnalysisCard key={a.id} question={a.question} answer={a.answer} />
+            ))}
+
+            {analyses.length === 0 && suggestions.length > 0 && (
+              <div className="py-2">
+                <p className="text-[10px] uppercase tracking-[2px] text-muted-foreground font-semibold mb-3">
+                  Suggested questions
+                </p>
+                <SuggestedQuestions suggestions={suggestions} onSelect={handleAsk} loading={loading} />
+              </div>
+            )}
+
+            {analyses.length === 0 && suggestions.length === 0 && !fetching && (
+              <div className="flex-1 flex items-center justify-center">
+                <p className="text-sm text-muted-foreground">Ask a question to get started</p>
+              </div>
+            )}
+          </div>
+
+          <form onSubmit={handleSubmit} className="border-t border-border px-4 py-3">
+            <div className="flex items-center gap-2 bg-card/50 backdrop-blur-xl border border-border rounded-full px-3 py-1.5">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder={`Analyse ${sessionLabel}...`}
+                disabled={loading}
+                className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+              />
+              <Button type="submit" size="icon" variant="ghost" disabled={loading || !input.trim()} className="rounded-full h-7 w-7 text-primary hover:bg-primary/20">
+                <Send size={14} />
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }
