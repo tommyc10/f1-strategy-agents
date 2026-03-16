@@ -38,7 +38,7 @@ export function ChatPanel({ messages, onSend, loading, agentStatus }: Props) {
         </AnimatePresence>
 
         {loading && activeAgent && (
-          <div className="text-xs text-[var(--accent-muted)] uppercase tracking-widest animate-pulse">
+          <div className="text-xs text-[var(--f1-accent-muted)] uppercase tracking-widest animate-pulse">
             {activeAgent[0]} agent running...
           </div>
         )}
@@ -46,8 +46,8 @@ export function ChatPanel({ messages, onSend, loading, agentStatus }: Props) {
         <div ref={bottomRef} />
       </div>
 
-      <form onSubmit={handleSubmit} className="p-4 border-t border-[var(--border)]">
-        <div className="flex items-center gap-3 bg-[var(--bg-input)] border border-[var(--border-strong)] rounded-full px-4 py-2 backdrop-blur-xl">
+      <form onSubmit={handleSubmit} className="p-4 border-t border-[var(--f1-border)]">
+        <div className="flex items-center gap-3 bg-[var(--bg-input)] border border-[var(--f1-border-strong)] rounded-full px-4 py-2 backdrop-blur-xl">
           <input
             type="text"
             value={input}
@@ -59,7 +59,7 @@ export function ChatPanel({ messages, onSend, loading, agentStatus }: Props) {
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className="w-8 h-8 rounded-full bg-[var(--accent-bg-strong)] flex items-center justify-center text-[var(--accent)] hover:bg-[var(--accent-bg-strong)] transition-colors disabled:opacity-30"
+            className="w-8 h-8 rounded-full bg-[var(--f1-accent-bg-strong)] flex items-center justify-center text-[var(--f1-accent)] hover:bg-[var(--f1-accent-bg-strong)] transition-colors disabled:opacity-30"
           >
             <Send size={14} />
           </button>

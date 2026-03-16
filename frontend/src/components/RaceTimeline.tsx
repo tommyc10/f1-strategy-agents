@@ -22,9 +22,9 @@ export function RaceTimeline({ events, totalLaps }: Props) {
   if (events.length === 0) return null;
 
   return (
-    <div className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--border)] rounded-2xl overflow-hidden">
-      <div className="px-5 py-3 border-b border-[var(--border)]">
-        <h2 className="text-[10px] uppercase tracking-[2px] text-[var(--accent-muted)] font-semibold">
+    <div className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--f1-border)] rounded-2xl overflow-hidden">
+      <div className="px-5 py-3 border-b border-[var(--f1-border)]">
+        <h2 className="text-[10px] uppercase tracking-[2px] text-[var(--f1-accent-muted)] font-semibold">
           Race Events
         </h2>
       </div>
@@ -43,7 +43,7 @@ export function RaceTimeline({ events, totalLaps }: Props) {
                 style={{ left: `${pct}%` }}
               >
                 <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 hidden group-hover:block z-10 whitespace-nowrap">
-                  <div className="bg-[var(--bg-dropdown)] border border-[var(--border-strong)] rounded px-2 py-1 text-[9px] text-[var(--text-secondary)] shadow-lg">
+                  <div className="bg-[var(--bg-dropdown)] border border-[var(--f1-border-strong)] rounded px-2 py-1 text-[9px] text-[var(--text-secondary)] shadow-lg">
                     L{event.lap}: {event.message || event.category}
                   </div>
                 </div>
@@ -62,7 +62,7 @@ export function RaceTimeline({ events, totalLaps }: Props) {
         {events.slice(0, 8).map((event, i) => (
           <span
             key={i}
-            className="text-[9px] text-[var(--text-secondary)] bg-[var(--bg-card-hover)] border border-[var(--border)] rounded px-2 py-0.5"
+            className="text-[9px] text-[var(--text-secondary)] bg-[var(--bg-card-hover)] border border-[var(--f1-border)] rounded px-2 py-0.5"
           >
             <span className={`inline-block w-1.5 h-1.5 rounded-full ${EVENT_COLORS[event.category] || "bg-neutral-500"} mr-1`} />
             L{event.lap} {event.category}

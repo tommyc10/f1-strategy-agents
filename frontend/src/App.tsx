@@ -83,7 +83,7 @@ function App() {
   return (
     <div className="h-screen bg-[var(--bg-root)] text-[var(--text-primary)] flex flex-col transition-colors duration-300">
       {/* Header */}
-      <header className="flex items-center justify-between px-6 py-3 border-b border-[var(--border)]">
+      <header className="flex items-center justify-between px-6 py-3 border-b border-[var(--f1-border)]">
         <div className="flex items-center gap-3">
           <h1 className="text-sm font-semibold tracking-tight">Strategy</h1>
           <SessionPicker selected={session} onSelect={handleSessionSelect} />
@@ -96,7 +96,7 @@ function App() {
             </button>
           ) : (
             connected && (
-              <span className="text-[10px] text-[var(--accent-muted)] uppercase tracking-widest bg-[var(--accent-bg)] px-2 py-0.5 rounded">
+              <span className="text-[10px] text-[var(--f1-accent-muted)] uppercase tracking-widest bg-[var(--f1-accent-bg)] px-2 py-0.5 rounded">
                 Live
               </span>
             )
@@ -130,7 +130,7 @@ function App() {
               agentStatus={agentStatus}
             />
           </main>
-          <div className="border-l border-[var(--border)]">
+          <div className="border-l border-[var(--f1-border)]">
             <DashboardSidebar context={raceContext} />
           </div>
         </div>
@@ -138,7 +138,7 @@ function App() {
 
       {/* Error banner */}
       {error && (
-        <div className="px-6 py-2 bg-[var(--bg-error)] border-t border-[var(--border-error)] text-red-500 text-xs">
+        <div className="px-6 py-2 bg-[var(--bg-error)] border-t border-[var(--f1-border-error)] text-red-500 text-xs">
           {error}
         </div>
       )}

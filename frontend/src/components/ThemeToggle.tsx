@@ -10,7 +10,7 @@ export function ThemeToggle({ theme, onToggle }: Props) {
   return (
     <button
       onClick={onToggle}
-      className="w-8 h-8 rounded-full flex items-center justify-center bg-[var(--bg-card)] border border-[var(--border-strong)] hover:bg-[var(--bg-card-hover)] transition-colors"
+      className="w-8 h-8 rounded-full flex items-center justify-center bg-[var(--bg-card)] border border-[var(--f1-border-strong)] hover:bg-[var(--bg-card-hover)] transition-colors"
       aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
     >
       <motion.div

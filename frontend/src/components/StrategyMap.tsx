@@ -30,9 +30,9 @@ export function StrategyMap({
   );
 
   return (
-    <div className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--border)] rounded-2xl overflow-hidden">
-      <div className="px-5 py-3 border-b border-[var(--border)] flex items-center justify-between">
-        <h2 className="text-[10px] uppercase tracking-[2px] text-[var(--accent-muted)] font-semibold">
+    <div className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--f1-border)] rounded-2xl overflow-hidden">
+      <div className="px-5 py-3 border-b border-[var(--f1-border)] flex items-center justify-between">
+        <h2 className="text-[10px] uppercase tracking-[2px] text-[var(--f1-accent-muted)] font-semibold">
           Strategy
         </h2>
         <div className="flex items-center gap-3">
@@ -65,10 +65,10 @@ export function StrategyMap({
                     <div key={stint.stint_number} className="flex items-center" style={{ width: `${widthPct}%` }}>
                       {stintIdx > 0 && stint.lap_start > 0 && (
                         <div className="flex flex-col items-center mx-px shrink-0">
-                          <span className="text-[7px] text-[var(--accent-muted)] font-mono leading-none">
+                          <span className="text-[7px] text-[var(--f1-accent-muted)] font-mono leading-none">
                             {stint.lap_start}
                           </span>
-                          <div className="w-px h-3 bg-[var(--accent)]/40" />
+                          <div className="w-px h-3 bg-[var(--f1-accent)]/40" />
                         </div>
                       )}
                       <div
@@ -82,7 +82,7 @@ export function StrategyMap({
                           )}
                         </div>
                         <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block z-10">
-                          <div className="bg-[var(--bg-dropdown)] border border-[var(--border-strong)] rounded px-2 py-1 text-[10px] text-[var(--text-secondary)] whitespace-nowrap shadow-lg">
+                          <div className="bg-[var(--bg-dropdown)] border border-[var(--f1-border-strong)] rounded px-2 py-1 text-[10px] text-[var(--text-secondary)] whitespace-nowrap shadow-lg">
                             {stint.compound} · {stint.tyre_age} laps
                           </div>
                         </div>

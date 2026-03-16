@@ -39,16 +39,16 @@ export function DriverComparison({ laps, positions }: Props) {
   const maxGap = Math.max(...chartData.map((d) => Math.abs(d.gap)), 1);
 
   return (
-    <div className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--border)] rounded-2xl overflow-hidden">
-      <div className="px-5 py-3 border-b border-[var(--border)] flex items-center justify-between flex-wrap gap-2">
-        <h2 className="text-[10px] uppercase tracking-[2px] text-[var(--accent-muted)] font-semibold">
+    <div className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--f1-border)] rounded-2xl overflow-hidden">
+      <div className="px-5 py-3 border-b border-[var(--f1-border)] flex items-center justify-between flex-wrap gap-2">
+        <h2 className="text-[10px] uppercase tracking-[2px] text-[var(--f1-accent-muted)] font-semibold">
           Head to Head
         </h2>
         <div className="flex items-center gap-2">
           <select
             value={driverA}
             onChange={(e) => setDriverA(e.target.value)}
-            className="text-[11px] bg-[var(--bg-input)] border border-[var(--border)] rounded px-2 py-1 text-[var(--text-primary)] outline-none"
+            className="text-[11px] bg-[var(--bg-input)] border border-[var(--f1-border)] rounded px-2 py-1 text-[var(--text-primary)] outline-none"
           >
             {drivers.map((d) => <option key={d} value={d}>{d}</option>)}
           </select>
@@ -56,7 +56,7 @@ export function DriverComparison({ laps, positions }: Props) {
           <select
             value={driverB}
             onChange={(e) => setDriverB(e.target.value)}
-            className="text-[11px] bg-[var(--bg-input)] border border-[var(--border)] rounded px-2 py-1 text-[var(--text-primary)] outline-none"
+            className="text-[11px] bg-[var(--bg-input)] border border-[var(--f1-border)] rounded px-2 py-1 text-[var(--text-primary)] outline-none"
           >
             {drivers.map((d) => <option key={d} value={d}>{d}</option>)}
           </select>
@@ -70,21 +70,21 @@ export function DriverComparison({ laps, positions }: Props) {
               dataKey="lap"
               tick={{ fontSize: 10, fill: "var(--text-muted)" }}
               tickLine={false}
-              axisLine={{ stroke: "var(--border)" }}
+              axisLine={{ stroke: "var(--f1-border)" }}
             />
             <YAxis
               domain={[-maxGap, maxGap]}
               tick={{ fontSize: 10, fill: "var(--text-muted)" }}
               tickLine={false}
-              axisLine={{ stroke: "var(--border)" }}
+              axisLine={{ stroke: "var(--f1-border)" }}
               tickFormatter={(v: number) => `${v > 0 ? "+" : ""}${v.toFixed(1)}s`}
               width={50}
             />
-            <ReferenceLine y={0} stroke="var(--border-strong)" strokeDasharray="3 3" />
+            <ReferenceLine y={0} stroke="var(--f1-border-strong)" strokeDasharray="3 3" />
             <Tooltip
               contentStyle={{
                 backgroundColor: "var(--bg-dropdown)",
-                border: "1px solid var(--border-strong)",
+                border: "1px solid var(--f1-border-strong)",
                 borderRadius: 8,
                 fontSize: 11,
                 color: "var(--text-primary)",

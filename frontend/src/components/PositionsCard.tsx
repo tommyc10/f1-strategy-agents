@@ -2,8 +2,8 @@ import type { DriverPosition } from "../lib/types";
 
 export function PositionsCard({ positions }: { positions: DriverPosition[] }) {
   return (
-    <div className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--border-strong)] rounded-xl p-4 shadow-[var(--shadow-card)]">
-      <h3 className="text-[9px] uppercase tracking-[1.5px] text-[var(--accent-muted)] mb-3">
+    <div className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--f1-border-strong)] rounded-xl p-4 shadow-[var(--shadow-card)]">
+      <h3 className="text-[9px] uppercase tracking-[1.5px] text-[var(--f1-accent-muted)] mb-3">
         Positions
       </h3>
       <div className="flex flex-col gap-1.5">

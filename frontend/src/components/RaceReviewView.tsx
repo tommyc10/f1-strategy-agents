@@ -99,7 +99,7 @@ export function RaceReviewView({ session, onAsk, loading, lastAnswer, raceContex
   return (
     <div className="flex flex-col h-full">
       {/* Header with inline weather */}
-      <div className="px-6 py-4 border-b border-[var(--border)]">
+      <div className="px-6 py-4 border-b border-[var(--f1-border)]">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -155,7 +155,7 @@ export function RaceReviewView({ session, onAsk, loading, lastAnswer, raceContex
                   drivers={drivers.slice(0, 5)}
                 />
               ) : (
-                <div className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--border)] rounded-2xl p-6 h-full flex items-center justify-center">
+                <div className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--f1-border)] rounded-2xl p-6 h-full flex items-center justify-center">
                   <p className="text-xs text-[var(--text-muted)]">No sector data available</p>
                 </div>
               )}
@@ -173,7 +173,7 @@ export function RaceReviewView({ session, onAsk, loading, lastAnswer, raceContex
           {/* Suggested questions */}
           {suggestions.length > 0 && analyses.length === 0 && (
             <div className="py-2">
-              <p className="text-[10px] uppercase tracking-[2px] text-[var(--accent-muted)] font-semibold mb-3">
+              <p className="text-[10px] uppercase tracking-[2px] text-[var(--f1-accent-muted)] font-semibold mb-3">
                 Suggested questions
               </p>
               <SuggestedQuestions suggestions={suggestions} onSelect={handleAsk} loading={loading} />
@@ -186,7 +186,7 @@ export function RaceReviewView({ session, onAsk, loading, lastAnswer, raceContex
           ))}
 
           {loading && pendingQuestion && (
-            <div className="flex items-center gap-2 text-xs text-[var(--accent-muted)] animate-pulse">
+            <div className="flex items-center gap-2 text-xs text-[var(--f1-accent-muted)] animate-pulse">
               <Loader2 size={12} className="animate-spin" />
               <span className="uppercase tracking-widest">Analysing...</span>
             </div>

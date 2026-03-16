@@ -11,12 +11,12 @@ export function AnalysisCard({ question, answer }: Props) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--accent-bg-strong)] rounded-2xl overflow-hidden"
+      className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--f1-accent-bg-strong)] rounded-2xl overflow-hidden"
     >
-      <div className="px-5 py-3 border-b border-[var(--border)] flex items-center gap-3">
-        <div className="w-1 h-4 rounded-full bg-[var(--accent)]" />
+      <div className="px-5 py-3 border-b border-[var(--f1-border)] flex items-center gap-3">
+        <div className="w-1 h-4 rounded-full bg-[var(--f1-accent)]" />
         <div>
-          <span className="text-[10px] uppercase tracking-[2px] text-[var(--accent-muted)] font-semibold">
+          <span className="text-[10px] uppercase tracking-[2px] text-[var(--f1-accent-muted)] font-semibold">
             Analysis
           </span>
           <p className="text-[13px] text-[var(--text-secondary)] mt-0.5">{question}</p>

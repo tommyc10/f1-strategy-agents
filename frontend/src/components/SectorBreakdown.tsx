@@ -13,8 +13,8 @@ type Props = {
 export function SectorBreakdown({ sectors, drivers }: Props) {
   if (sectors.length === 0) {
     return (
-      <div className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--border)] rounded-2xl p-6">
-        <h3 className="text-[10px] uppercase tracking-[2px] text-[var(--accent-muted)] font-semibold mb-4">
+      <div className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--f1-border)] rounded-2xl p-6">
+        <h3 className="text-[10px] uppercase tracking-[2px] text-[var(--f1-accent-muted)] font-semibold mb-4">
           Sector Analysis
         </h3>
         <p className="text-xs text-[var(--text-muted)]">No sector data available</p>
@@ -66,9 +66,9 @@ export function SectorBreakdown({ sectors, drivers }: Props) {
   };
 
   return (
-    <div className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--border)] rounded-2xl overflow-hidden h-full flex flex-col">
-      <div className="px-5 py-3 border-b border-[var(--border)] flex items-center justify-between">
-        <h3 className="text-[10px] uppercase tracking-[2px] text-[var(--accent-muted)] font-semibold">
+    <div className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--f1-border)] rounded-2xl overflow-hidden h-full flex flex-col">
+      <div className="px-5 py-3 border-b border-[var(--f1-border)] flex items-center justify-between">
+        <h3 className="text-[10px] uppercase tracking-[2px] text-[var(--f1-accent-muted)] font-semibold">
           Sector Pace
         </h3>
         <div className="flex gap-4 text-[9px] text-[var(--text-muted)]">
@@ -78,7 +78,7 @@ export function SectorBreakdown({ sectors, drivers }: Props) {
         </div>
       </div>
 
-      <div className="flex-1 divide-y divide-[var(--border)]">
+      <div className="flex-1 divide-y divide-[var(--f1-border)]">
         {drivers.map((driver) => {
           const pace = driverPace.get(driver);
           if (!pace || pace.length === 0) return null;
@@ -113,7 +113,7 @@ export function SectorBreakdown({ sectors, drivers }: Props) {
 
                       {/* Tooltip */}
                       <div className="absolute bottom-full mb-1.5 left-1/2 -translate-x-1/2 hidden group-hover:block z-10 whitespace-nowrap">
-                        <div className="bg-[var(--bg-dropdown)] border border-[var(--border-strong)] rounded px-2 py-1 text-[9px] text-[var(--text-secondary)] shadow-lg">
+                        <div className="bg-[var(--bg-dropdown)] border border-[var(--f1-border-strong)] rounded px-2 py-1 text-[9px] text-[var(--text-secondary)] shadow-lg">
                           S{sectorIdx + 1}: {time.toFixed(3)}s
                           {delta < 0.05 ? " — fastest" : ` +${delta.toFixed(3)}s`}
                         </div>
@@ -128,7 +128,7 @@ export function SectorBreakdown({ sectors, drivers }: Props) {
       </div>
 
       {/* Legend */}
-      <div className="px-5 py-2.5 bg-[var(--bg-card-hover)] border-t border-[var(--border)] flex gap-4 text-[9px] text-[var(--text-muted)]">
+      <div className="px-5 py-2.5 bg-[var(--bg-card-hover)] border-t border-[var(--f1-border)] flex gap-4 text-[9px] text-[var(--text-muted)]">
         <div className="flex items-center gap-1">
           <div className="w-1.5 h-1.5 rounded-full bg-green-500/80" />
           <span>Best</span>

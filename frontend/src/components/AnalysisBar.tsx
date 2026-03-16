@@ -20,9 +20,9 @@ export function AnalysisBar({ onAsk, loading, sessionLabel }: Props) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="border-t border-[var(--border)] px-6 py-3"
+      className="border-t border-[var(--f1-border)] px-6 py-3"
     >
-      <div className="flex items-center gap-3 bg-[var(--bg-input)] border border-[var(--border-strong)] rounded-full px-4 py-2 backdrop-blur-xl">
+      <div className="flex items-center gap-3 bg-[var(--bg-input)] border border-[var(--f1-border-strong)] rounded-full px-4 py-2 backdrop-blur-xl">
         <input
           type="text"
           value={input}
@@ -34,7 +34,7 @@ export function AnalysisBar({ onAsk, loading, sessionLabel }: Props) {
         <button
           type="submit"
           disabled={loading || !input.trim()}
-          className="w-8 h-8 rounded-full bg-[var(--accent-bg-strong)] flex items-center justify-center text-[var(--accent)] hover:bg-[var(--accent-bg-strong)] transition-colors disabled:opacity-30"
+          className="w-8 h-8 rounded-full bg-[var(--f1-accent-bg-strong)] flex items-center justify-center text-[var(--f1-accent)] hover:bg-[var(--f1-accent-bg-strong)] transition-colors disabled:opacity-30"
         >
           <Send size={14} />
         </button>

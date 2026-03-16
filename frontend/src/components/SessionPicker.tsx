@@ -30,7 +30,7 @@ export function SessionPicker({ selected, onSelect }: Props) {
     <div className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--bg-card)] border border-[var(--border-strong)] text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)] transition-colors"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--bg-card)] border border-[var(--f1-border-strong)] text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-card-hover)] transition-colors"
       >
         <span>{loading ? "Loading..." : label}</span>
         <ChevronDown size={14} className={`transition-transform ${open ? "rotate-180" : ""}`} />
@@ -43,7 +43,7 @@ export function SessionPicker({ selected, onSelect }: Props) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.15 }}
-            className="absolute top-full left-0 mt-1 w-64 max-h-80 overflow-y-auto rounded-xl bg-[var(--bg-dropdown)] border border-[var(--border-strong)] shadow-[var(--shadow-dropdown)] backdrop-blur-xl z-50"
+            className="absolute top-full left-0 mt-1 w-64 max-h-80 overflow-y-auto rounded-xl bg-[var(--bg-dropdown)] border border-[var(--f1-border-strong)] shadow-[var(--shadow-dropdown)] backdrop-blur-xl z-50"
           >
             {sessions.map((s) => (
               <button
@@ -52,8 +52,8 @@ export function SessionPicker({ selected, onSelect }: Props) {
                   onSelect(s);
                   setOpen(false);
                 }}
-                className={`w-full text-left px-4 py-2.5 text-sm hover:bg-[var(--bg-card-hover)] transition-colors border-b border-[var(--border)] last:border-0 ${
-                  selected?.session_key === s.session_key ? "bg-[var(--accent-bg)] text-[var(--accent)]" : "text-[var(--text-secondary)]"
+                className={`w-full text-left px-4 py-2.5 text-sm hover:bg-[var(--bg-card-hover)] transition-colors border-b border-[var(--f1-border)] last:border-0 ${
+                  selected?.session_key === s.session_key ? "bg-[var(--f1-accent-bg)] text-[var(--f1-accent)]" : "text-[var(--text-secondary)]"
                 }`}
               >
                 <div className="font-medium">{s.location}</div>

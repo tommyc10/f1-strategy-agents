@@ -4,16 +4,16 @@ import type { Weather } from "../lib/types";
 export function WeatherCard({ weather }: { weather: Weather | null }) {
   if (!weather) {
     return (
-      <div className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--border-strong)] rounded-xl p-4 shadow-[var(--shadow-card)]">
-        <h3 className="text-[9px] uppercase tracking-[1.5px] text-[var(--accent-muted)] mb-3">Weather</h3>
+      <div className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--f1-border-strong)] rounded-xl p-4 shadow-[var(--shadow-card)]">
+        <h3 className="text-[9px] uppercase tracking-[1.5px] text-[var(--f1-accent-muted)] mb-3">Weather</h3>
         <p className="text-[var(--text-muted)] text-xs">No weather data</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--border-strong)] rounded-xl p-4 shadow-[var(--shadow-card)]">
-      <h3 className="text-[9px] uppercase tracking-[1.5px] text-[var(--accent-muted)] mb-3">Weather</h3>
+    <div className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--f1-border-strong)] rounded-xl p-4 shadow-[var(--shadow-card)]">
+      <h3 className="text-[9px] uppercase tracking-[1.5px] text-[var(--f1-accent-muted)] mb-3">Weather</h3>
       <div className="flex flex-col gap-2 text-xs">
         <div className="flex justify-between">
           <span className="text-[var(--text-secondary)]">Track</span>
