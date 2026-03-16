@@ -72,10 +72,13 @@ def _parse_laps(raw_laps: list, driver_lookup: dict[int, str]) -> list[LapTime]:
         num = lap["driver_number"]
         if num not in driver_lookup or lap.get("lap_duration") is None:
             continue
+        # OpenF1 returns lap_duration in milliseconds; convert to seconds
+        lap_duration_ms = lap["lap_duration"]
+        lap_duration_s = lap_duration_ms / 1000.0 if lap_duration_ms > 10 else lap_duration_ms
         laps.append(LapTime(
             driver=driver_lookup[num],
             lap_number=lap["lap_number"],
-            lap_time=lap["lap_duration"],
+            lap_time=lap_duration_s,
         ))
     return laps
 

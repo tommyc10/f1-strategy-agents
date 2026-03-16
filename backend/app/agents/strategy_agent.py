@@ -64,7 +64,7 @@ def _format_historical_context(context: RaceContext, question: str) -> str:
     filtered_laps = [lap for lap in context.laps if lap.driver in target_drivers]
 
     if context.stints:
-        lines.append("\nTyre Stints — All Drivers (for competitive context):")
+        lines.append("\nTyre Stints — Top 6 Drivers (for competitive context):")
         # Group stints by driver for easier pit lap identification
         stints_by_driver = {}
         for s in context.stints:
@@ -72,7 +72,9 @@ def _format_historical_context(context: RaceContext, question: str) -> str:
                 stints_by_driver[s.driver] = []
             stints_by_driver[s.driver].append(s)
 
-        for driver in sorted(stints_by_driver.keys()):
+        # Show only top 6 drivers to reduce context size
+        top_drivers = [p.driver for p in context.positions[:6]] if context.positions else list(stints_by_driver.keys())[:6]
+        for driver in sorted(set(top_drivers) & set(stints_by_driver.keys())):
             driver_stints = sorted(stints_by_driver[driver], key=lambda x: x.stint_number)
             pit_laps = []
             for i, s in enumerate(driver_stints):
