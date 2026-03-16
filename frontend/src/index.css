@@ -35,36 +35,42 @@
 }
 
 [data-theme="light"] {
-  --bg-root: #F6F5F1;
-  --bg-card: rgba(255, 255, 255, 0.75);
-  --bg-card-hover: rgba(255, 255, 255, 0.9);
-  --bg-input: rgba(0, 0, 0, 0.02);
+  /* Background: warmer, more sophisticated base */
+  --bg-root: #FEFCF8;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #FFFBF5;
+  --bg-input: #FAFAF8;
   --bg-dropdown: #FFFFFF;
-  --bg-highlight: rgba(124, 58, 237, 0.05);
-  --bg-error: rgba(239, 68, 68, 0.06);
+  --bg-highlight: rgba(124, 58, 237, 0.08);
+  --bg-error: rgba(239, 68, 68, 0.08);
 
-  --border: rgba(0, 0, 0, 0.06);
-  --border-strong: rgba(0, 0, 0, 0.1);
-  --border-error: rgba(239, 68, 68, 0.15);
+  /* Borders: stronger definition with warmth */
+  --border: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.12);
+  --border-error: rgba(239, 68, 68, 0.2);
 
-  --text-primary: #1C1C1E;
-  --text-secondary: rgba(0, 0, 0, 0.5);
-  --text-muted: rgba(0, 0, 0, 0.25);
-  --text-ghost: rgba(0, 0, 0, 0.1);
+  /* Text: high contrast for readability */
+  --text-primary: #0F0F0F;
+  --text-secondary: rgba(0, 0, 0, 0.65);
+  --text-muted: rgba(0, 0, 0, 0.4);
+  --text-ghost: rgba(0, 0, 0, 0.15);
 
-  --accent: rgb(124, 58, 237);
-  --accent-muted: rgba(124, 58, 237, 0.5);
-  --accent-bg: rgba(124, 58, 237, 0.08);
-  --accent-bg-strong: rgba(124, 58, 237, 0.14);
+  /* Accent: rich purple that pops in light mode */
+  --accent: rgb(109, 40, 217);
+  --accent-muted: rgba(109, 40, 217, 0.65);
+  --accent-bg: rgba(109, 40, 217, 0.12);
+  --accent-bg-strong: rgba(109, 40, 217, 0.18);
 
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.03);
-  --shadow-dropdown: 0 4px 24px rgba(0, 0, 0, 0.08);
+  /* Shadows: subtle but present for depth */
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --shadow-dropdown: 0 4px 24px rgba(0, 0, 0, 0.12);
 
-  --compound-soft: rgb(220, 38, 38);
-  --compound-medium: rgb(202, 138, 4);
-  --compound-hard: rgba(0, 0, 0, 0.4);
-  --compound-inter: rgb(22, 163, 74);
-  --compound-wet: rgb(37, 99, 235);
+  /* Tire compounds: saturated for light mode */
+  --compound-soft: rgb(239, 68, 68);
+  --compound-medium: rgb(217, 119, 6);
+  --compound-hard: rgba(80, 80, 80, 0.7);
+  --compound-inter: rgb(34, 197, 94);
+  --compound-wet: rgb(59, 130, 246);
 }
 
 body {
