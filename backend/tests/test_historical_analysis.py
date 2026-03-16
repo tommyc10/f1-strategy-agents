@@ -89,7 +89,7 @@ async def test_analyse_historical_uses_historical_prompt(sample_race_context):
         assert mock_gen.called
         call_args = mock_gen.call_args
         prompt = call_args[0][0]
-        assert "lap-specific analysis" in prompt  # Unique to historical prompt
+        assert "POST-RACE analysis" in prompt  # Unique to historical prompt
 
 
 @pytest.mark.asyncio
