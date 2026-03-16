@@ -110,6 +110,7 @@ function App() {
           onAsk={handleHistoricalAsk}
           loading={loading}
           lastAnswer={lastBriefing}
+          raceContext={raceContext}
         />
       ) : (
         <div className="flex-1 flex overflow-hidden">

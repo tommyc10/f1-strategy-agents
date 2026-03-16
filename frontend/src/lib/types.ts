@@ -17,6 +17,13 @@ export type LapTime = {
   lap_time: number;
 };
 
+export type SectorTime = {
+  driver: string;
+  lap_number: number;
+  sector_number: number;
+  sector_time: number;
+};
+
 export type Weather = {
   track_temp: number;
   air_temp: number;
@@ -28,6 +35,7 @@ export type RaceContext = {
   positions: DriverPosition[];
   stints: TyreStint[];
   laps: LapTime[];
+  sectors: SectorTime[];
   weather: Weather | null;
 };
 

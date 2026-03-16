@@ -4,10 +4,11 @@ import { Loader2 } from "lucide-react";
 import { ResultsTable } from "./ResultsTable";
 import { StrategyMap } from "./StrategyMap";
 import { WeatherCard } from "./WeatherCard";
+import { SectorBreakdown } from "./SectorBreakdown";
 import { AnalysisBar } from "./AnalysisBar";
 import { AnalysisCard } from "./AnalysisCard";
 import { fetchRaceSummary, type RaceSummary } from "../lib/api";
-import type { Session } from "../lib/types";
+import type { Session, SectorTime, RaceContext } from "../lib/types";
 
 type Analysis = { id: string; question: string; answer: string };
 
@@ -16,6 +17,7 @@ type Props = {
   onAsk: (question: string) => void;
   loading: boolean;
   lastAnswer: string | null;
+  raceContext?: RaceContext | null;
 };
 
 export function RaceReviewView({ session, onAsk, loading, lastAnswer }: Props) {
@@ -91,6 +93,13 @@ export function RaceReviewView({ session, onAsk, loading, lastAnswer }: Props) {
 
           <div className="lg:col-span-2 flex flex-col gap-4">
             <StrategyMap strategyMap={summary.strategy_map} />
+
+            {raceContext && raceContext.sectors && raceContext.sectors.length > 0 && (
+              <SectorBreakdown
+                sectors={raceContext.sectors}
+                drivers={raceContext.positions.slice(0, 5).map((p) => p.driver)}
+              />
+            )}
 
             {summary.weather && (
               <div className="max-w-xs">
