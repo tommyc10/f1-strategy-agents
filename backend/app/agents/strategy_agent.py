@@ -70,8 +70,26 @@ def _format_historical_context(context: RaceContext, question: str) -> str:
 
     if filtered_laps:
         lines.append(f"\nLap Times ({', '.join(target_drivers)}):")
+        # Group laps by driver to show degradation trends
+        laps_by_driver = {}
         for lap in filtered_laps:
-            lines.append(f"  {lap.driver} lap {lap.lap_number}: {lap.lap_time:.3f}s")
+            if lap.driver not in laps_by_driver:
+                laps_by_driver[lap.driver] = []
+            laps_by_driver[lap.driver].append(lap)
+
+        for driver in sorted(laps_by_driver.keys()):
+            driver_laps = sorted(laps_by_driver[driver], key=lambda x: x.lap_number)
+            lines.append(f"  {driver}:")
+            for i, lap in enumerate(driver_laps):
+                degradation = ""
+                if i > 0:
+                    prev_time = driver_laps[i - 1].lap_time
+                    delta = lap.lap_time - prev_time
+                    if delta > 0.05:
+                        degradation = f" (+{delta:.3f}s)"
+                    elif delta < -0.05:
+                        degradation = f" ({delta:.3f}s)"
+                lines.append(f"    lap {lap.lap_number}: {lap.lap_time:.3f}s{degradation}")
 
     if context.weather:
         w = context.weather

@@ -24,16 +24,21 @@ def _safe_gap(value: object) -> float:
 
 def _parse_positions(raw_positions: list, raw_intervals: list, driver_lookup: dict[int, str]) -> list[DriverPosition]:
     gap_map = {item["driver_number"]: _safe_gap(item.get("gap_to_leader", 0.0)) for item in raw_intervals}
-    seen = set()
-    positions = []
-    for p in sorted(raw_positions, key=lambda x: x["position"]):
+
+    # Take the last position entry for each driver (final classification)
+    final_positions = {}
+    for p in raw_positions:
         num = p["driver_number"]
-        if num in seen or num not in driver_lookup:
-            continue
-        seen.add(num)
+        if num in driver_lookup:
+            final_positions[num] = p
+
+    # Sort by final position and build result
+    positions = []
+    for num in sorted(final_positions.keys(), key=lambda n: final_positions[n].get("position", 999)):
+        p = final_positions[num]
         positions.append(DriverPosition(
             driver=driver_lookup[num],
-            position=p["position"],
+            position=p.get("position", 999),
             gap_to_leader=gap_map.get(num, 0.0),
         ))
     return positions

@@ -85,10 +85,11 @@ async def test_analyse_historical_uses_historical_prompt(sample_race_context):
 
         await analyse_historical("When should Hamilton have pitted?", sample_race_context)
 
-        # Verify generate_strategy was called with HISTORICAL prompt
+        # Verify generate_strategy was called with HISTORICAL prompt (check for key phrase)
         assert mock_gen.called
         call_args = mock_gen.call_args
-        assert "HISTORICAL" in call_args[0][0]  # First positional arg is the prompt
+        prompt = call_args[0][0]
+        assert "lap-specific analysis" in prompt  # Unique to historical prompt
 
 
 @pytest.mark.asyncio
