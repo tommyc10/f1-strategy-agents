@@ -1,7 +1,7 @@
 import logging
 import re
 from pathlib import Path
-from app.services.gemini import generate_strategy
+from app.services.gemini import generate_strategy, GeminiRateLimitError
 from app.models.schemas import RaceContext, StrategyOutput
 from app.models.types import Recommendation, Confidence
 
@@ -165,7 +165,11 @@ async def analyse_strategy(question: str, race_context: RaceContext) -> Strategy
     context_text = _format_race_context(race_context)
     user_message = f"Race Data:\n{context_text}\n\nQuestion: {question}"
 
-    raw_response = await generate_strategy(SYSTEM_PROMPT, user_message)
+    try:
+        raw_response = await generate_strategy(SYSTEM_PROMPT, user_message)
+    except GeminiRateLimitError:
+        return _rate_limit_response()
+
     logger.info("Gemini raw response:\n%s", raw_response[:500])
 
     if not raw_response:
@@ -183,8 +187,14 @@ async def analyse_historical(question: str, race_context: RaceContext) -> Strate
     context_text = _format_historical_context(race_context, question)
     user_message = f"{context_text}\n\nAnalyze: {question}"
 
-    raw_response = await generate_strategy(HISTORICAL_SYSTEM_PROMPT, user_message)
-    logger.info("Gemini historical analysis response:\n%s", raw_response[:500])
+    logger.info("Historical context size: %d chars, %d lines", len(context_text), context_text.count("\n"))
+
+    try:
+        raw_response = await generate_strategy(HISTORICAL_SYSTEM_PROMPT, user_message)
+    except GeminiRateLimitError:
+        return _rate_limit_response()
+
+    logger.info("Gemini historical analysis response (%d chars):\n%s", len(raw_response), raw_response[:500])
 
     if not raw_response:
         return StrategyOutput(
@@ -194,3 +204,11 @@ async def analyse_historical(question: str, race_context: RaceContext) -> Strate
         )
 
     return _parse_response(raw_response)
+
+
+def _rate_limit_response() -> StrategyOutput:
+    return StrategyOutput(
+        reasoning="Gemini API rate limit reached. Please wait a minute and try again.",
+        recommendation=Recommendation.FLEXIBLE,
+        confidence=Confidence.LOW,
+    )

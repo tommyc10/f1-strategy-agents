@@ -10,7 +10,7 @@ class Settings(BaseSettings):
 
     gemini_api_key: str = ""
     openf1_base_url: str = "https://api.openf1.org/v1"
-    gemini_model: str = "gemini-2.5-flash"
+    gemini_model: str = "gemini-2.0-flash"
 
 
 settings = Settings()
