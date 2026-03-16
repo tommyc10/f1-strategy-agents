@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import fastf1
 from pathlib import Path
@@ -9,11 +10,16 @@ CACHE_DIR.mkdir(exist_ok=True)
 fastf1.Cache.enable_cache(str(CACHE_DIR))
 
 
+def _load_session(year: int, location: str):
+    session = fastf1.get_session(year, location, "R")
+    session.load(telemetry=False, messages=False)
+    return session
+
+
 async def get_race_results(year: int, location: str) -> list[dict]:
     """Get final race classification."""
     try:
-        session = fastf1.get_session(year, location, "R")
-        session.load(telemetry=False, messages=False)
+        session = await asyncio.to_thread(_load_session, year, location)
         results = session.results
         return [
             {
@@ -34,8 +40,7 @@ async def get_race_results(year: int, location: str) -> list[dict]:
 async def get_lap_analysis(year: int, location: str, driver: str) -> dict:
     """Get lap time analysis for a specific driver."""
     try:
-        session = fastf1.get_session(year, location, "R")
-        session.load(telemetry=False, messages=False)
+        session = await asyncio.to_thread(_load_session, year, location)
         laps = session.laps.pick_drivers(driver)
 
         if laps.empty:

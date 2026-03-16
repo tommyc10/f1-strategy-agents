@@ -2,21 +2,26 @@ import type { Session } from "./types";
 
 const BASE_URL = "/api";
 
-export async function fetchDrivers(sessionKey?: string) {
-  const params = sessionKey ? `?session_key=${sessionKey}` : "";
-  const res = await fetch(`${BASE_URL}/data/drivers${params}`);
+async function fetchJSON<T>(url: string): Promise<T> {
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`Request failed: ${res.status} ${res.statusText}`);
+  }
   return res.json();
 }
 
+export async function fetchDrivers(sessionKey?: string) {
+  const params = sessionKey ? `?session_key=${sessionKey}` : "";
+  return fetchJSON<unknown[]>(`${BASE_URL}/data/drivers${params}`);
+}
+
 export async function fetchHealth() {
-  const res = await fetch(`${BASE_URL}/health`);
-  return res.json();
+  return fetchJSON<{ status: string }>(`${BASE_URL}/health`);
 }
 
 export async function fetchSessions(year?: number): Promise<Session[]> {
   const params = year ? `?year=${year}` : "";
-  const res = await fetch(`${BASE_URL}/data/sessions${params}`);
-  return res.json();
+  return fetchJSON<Session[]>(`${BASE_URL}/data/sessions${params}`);
 }
 
 export type RaceSummary = {
@@ -28,6 +33,5 @@ export type RaceSummary = {
 };
 
 export async function fetchRaceSummary(sessionKey: string): Promise<RaceSummary> {
-  const res = await fetch(`${BASE_URL}/data/race-summary?session_key=${sessionKey}`);
-  return res.json();
+  return fetchJSON<RaceSummary>(`${BASE_URL}/data/race-summary?session_key=${sessionKey}`);
 }

@@ -23,7 +23,7 @@ export function SectorBreakdown({ sectors, drivers }: Props) {
   }
 
   // Get the latest lap with sector data for each driver
-  const latestSectorsByDriver = new Map<string, SectorTime[]>();
+  const latestSectorsByDriver = new Map<string, SectorTimeLocal[]>();
   const driverLaps = new Map<string, number>();
 
   for (const sector of sectors) {

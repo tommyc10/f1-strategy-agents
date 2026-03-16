@@ -20,7 +20,7 @@ type Props = {
   raceContext?: RaceContext | null;
 };
 
-export function RaceReviewView({ session, onAsk, loading, lastAnswer }: Props) {
+export function RaceReviewView({ session, onAsk, loading, lastAnswer, raceContext }: Props) {
   const [summary, setSummary] = useState<RaceSummary | null>(null);
   const [fetching, setFetching] = useState(false);
   const [analyses, setAnalyses] = useState<Analysis[]>([]);

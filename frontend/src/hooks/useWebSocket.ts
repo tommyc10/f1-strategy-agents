@@ -5,6 +5,7 @@ type AgentStatus = Record<string, "pending" | "running" | "complete">;
 
 export function useWebSocket() {
   const wsRef = useRef<WebSocket | null>(null);
+  const retriesRef = useRef(0);
   const [connected, setConnected] = useState(false);
   const [agentStatus, setAgentStatus] = useState<AgentStatus>({});
   const [lastResult, setLastResult] = useState<Extract<WsMessage, { type: "result" }> | null>(null);
@@ -15,14 +16,24 @@ export function useWebSocket() {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
 
-    ws.onopen = () => setConnected(true);
+    ws.onopen = () => {
+      setConnected(true);
+      retriesRef.current = 0;
+    };
     ws.onclose = () => {
       setConnected(false);
-      setTimeout(connect, 3000);
+      const delay = Math.min(1000 * 2 ** retriesRef.current, 30000);
+      retriesRef.current += 1;
+      setTimeout(connect, delay);
     };
 
     ws.onmessage = (event) => {
-      const msg: WsMessage = JSON.parse(event.data);
+      let msg: WsMessage;
+      try {
+        msg = JSON.parse(event.data);
+      } catch {
+        return;
+      }
 
       if (msg.type === "status") {
         setAgentStatus((prev) => ({ ...prev, [msg.agent]: msg.state }));
