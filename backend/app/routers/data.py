@@ -63,6 +63,62 @@ async def get_drivers(session_key: str | None = None):
     return DriversResponse(session_key=session_key, drivers=drivers)
 
 
+@router.get("/suggestions")
+async def get_suggestions(session_key: str):
+    context = await fetch_race_context(session_key=session_key)
+    suggestions = []
+
+    # Winner analysis
+    if context.positions:
+        winner = context.positions[0].driver
+        suggestions.append(f"How did {winner} win this race?")
+
+    # Close battle
+    for i in range(len(context.positions) - 1):
+        curr_gap = context.positions[i].gap_to_leader
+        next_gap = context.positions[i + 1].gap_to_leader
+        gap = next_gap - curr_gap
+        if 0 < gap < 2.0:
+            a = context.positions[i].driver
+            b = context.positions[i + 1].driver
+            suggestions.append(f"Was the battle between {a} and {b} decided by pit strategy?")
+            break
+
+    # Multi-stop
+    stints_by_driver: dict[str, list] = {}
+    for s in context.stints:
+        stints_by_driver.setdefault(s.driver, []).append(s)
+    multi_stop = [d for d, ss in stints_by_driver.items() if len(ss) >= 3]
+    if multi_stop:
+        suggestions.append(f"Did {multi_stop[0]}'s multi-stop strategy work?")
+
+    # Tyre compound variety
+    if context.stints:
+        compounds_used = set(s.compound.value for s in context.stints)
+        if len(compounds_used) >= 3:
+            suggestions.append("Which tyre compound worked best in this race?")
+
+    return suggestions[:4]
+
+
+@router.get("/race-events")
+async def get_race_events(session_key: str):
+    async with httpx.AsyncClient() as client:
+        raw = await openf1.fetch_race_control(client, session_key)
+
+    events = []
+    for msg in raw:
+        category = msg.get("category", "")
+        if category in ("SafetyCar", "Flag", "Drs"):
+            events.append({
+                "lap": msg.get("lap_number", 0),
+                "category": category,
+                "flag": msg.get("flag", ""),
+                "message": msg.get("message", ""),
+            })
+    return events
+
+
 @router.get("/race-summary")
 async def race_summary(session_key: str):
     context = await fetch_race_context(session_key=session_key)
@@ -76,6 +132,7 @@ async def race_summary(session_key: str):
             "stint_number": stint.stint_number,
             "compound": stint.compound.value,
             "tyre_age": stint.tyre_age,
+            "lap_start": stint.lap_start,
         })
 
     return {
@@ -84,5 +141,6 @@ async def race_summary(session_key: str):
         "strategy_map": strategy_map,
         "weather": context.weather.model_dump() if context.weather else None,
         "sectors": [s.model_dump() for s in context.sectors],
+        "laps": [l.model_dump() for l in context.laps],
         "total_drivers": len(context.positions),
     }

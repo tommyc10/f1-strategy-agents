@@ -6,7 +6,12 @@ import { StrategyMap } from "./StrategyMap";
 import { SectorBreakdown } from "./SectorBreakdown";
 import { AnalysisBar } from "./AnalysisBar";
 import { AnalysisCard } from "./AnalysisCard";
-import { fetchRaceSummary, type RaceSummary } from "../lib/api";
+import { LapPaceChart } from "./LapPaceChart";
+import { DriverComparison } from "./DriverComparison";
+import { RaceTimeline } from "./RaceTimeline";
+import { SkeletonCard } from "./SkeletonCard";
+import { SuggestedQuestions } from "./SuggestedQuestions";
+import { fetchRaceSummary, fetchSuggestions, fetchRaceEvents, type RaceSummary, type RaceEvent } from "../lib/api";
 import type { Session, RaceContext } from "../lib/types";
 
 type Analysis = { id: string; question: string; answer: string };
@@ -24,13 +29,26 @@ export function RaceReviewView({ session, onAsk, loading, lastAnswer, raceContex
   const [fetching, setFetching] = useState(false);
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
   const [pendingQuestion, setPendingQuestion] = useState<string | null>(null);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [raceEvents, setRaceEvents] = useState<RaceEvent[]>([]);
 
   useEffect(() => {
     setFetching(true);
     setSummary(null);
     setAnalyses([]);
-    fetchRaceSummary(session.session_key)
-      .then(setSummary)
+    setSuggestions([]);
+    setRaceEvents([]);
+
+    Promise.all([
+      fetchRaceSummary(session.session_key),
+      fetchSuggestions(session.session_key),
+      fetchRaceEvents(session.session_key),
+    ])
+      .then(([sum, sugg, events]) => {
+        setSummary(sum);
+        setSuggestions(sugg);
+        setRaceEvents(events);
+      })
       .catch(() => setSummary(null))
       .finally(() => setFetching(false));
   }, [session.session_key]);
@@ -52,8 +70,15 @@ export function RaceReviewView({ session, onAsk, loading, lastAnswer, raceContex
 
   if (fetching) {
     return (
-      <div className="flex-1 flex items-center justify-center">
-        <Loader2 size={20} className="text-[var(--accent)] animate-spin" />
+      <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex flex-col gap-4 max-w-6xl mx-auto">
+          <SkeletonCard lines={8} height="200px" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <SkeletonCard lines={6} />
+            <SkeletonCard lines={6} />
+          </div>
+          <SkeletonCard lines={4} height="280px" />
+        </div>
       </div>
     );
   }
@@ -68,6 +93,8 @@ export function RaceReviewView({ session, onAsk, loading, lastAnswer, raceContex
 
   const sessionLabel = `${session.location} ${session.year}`;
   const w = summary.weather;
+  const drivers = summary.positions.map((p) => p.driver);
+  const totalLaps = Math.max(...(summary.laps?.map((l) => l.lap_number) || [0]), 1);
 
   return (
     <div className="flex flex-col h-full">
@@ -76,7 +103,7 @@ export function RaceReviewView({ session, onAsk, loading, lastAnswer, raceContex
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="flex items-center justify-between"
+          className="flex items-center justify-between flex-wrap gap-2"
         >
           <div className="flex items-baseline gap-3">
             <h2 className="text-lg font-semibold tracking-tight text-[var(--text-primary)]">{session.location}</h2>
@@ -113,6 +140,9 @@ export function RaceReviewView({ session, onAsk, loading, lastAnswer, raceContex
           {/* Hero: Strategy map full width */}
           <StrategyMap strategyMap={summary.strategy_map} />
 
+          {/* Race timeline */}
+          <RaceTimeline events={raceEvents} totalLaps={totalLaps} />
+
           {/* Two-column: Classification + Sectors */}
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
             <div className="lg:col-span-2">
@@ -122,7 +152,7 @@ export function RaceReviewView({ session, onAsk, loading, lastAnswer, raceContex
               {summary.sectors && summary.sectors.length > 0 ? (
                 <SectorBreakdown
                   sectors={summary.sectors}
-                  drivers={summary.positions.slice(0, 5).map((p) => p.driver)}
+                  drivers={drivers.slice(0, 5)}
                 />
               ) : (
                 <div className="bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--border)] rounded-2xl p-6 h-full flex items-center justify-center">
@@ -131,6 +161,24 @@ export function RaceReviewView({ session, onAsk, loading, lastAnswer, raceContex
               )}
             </div>
           </div>
+
+          {/* Data visualization: Lap Pace + Driver H2H */}
+          {summary.laps && summary.laps.length > 0 && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <LapPaceChart laps={summary.laps} drivers={drivers.slice(0, 10)} />
+              <DriverComparison laps={summary.laps} positions={summary.positions} />
+            </div>
+          )}
+
+          {/* Suggested questions */}
+          {suggestions.length > 0 && analyses.length === 0 && (
+            <div className="py-2">
+              <p className="text-[10px] uppercase tracking-[2px] text-[var(--accent-muted)] font-semibold mb-3">
+                Suggested questions
+              </p>
+              <SuggestedQuestions suggestions={suggestions} onSelect={handleAsk} loading={loading} />
+            </div>
+          )}
 
           {/* Analysis cards */}
           {analyses.map((a) => (

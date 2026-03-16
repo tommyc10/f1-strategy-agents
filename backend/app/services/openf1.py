@@ -79,3 +79,7 @@ async def fetch_intervals(client: AsyncClient, session_key: str) -> list:
     return await _get(client, "intervals", {"session_key": session_key})
 
 
+async def fetch_race_control(client: AsyncClient, session_key: str) -> list:
+    return await _get(client, "race_control", {"session_key": session_key})
+
+

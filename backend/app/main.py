@@ -46,6 +46,7 @@ async def websocket_endpoint(ws: WebSocket):
             question = data_msg.get("question", "")
             session_key = data_msg.get("session_key")
             is_historical = data_msg.get("is_historical", False)
+            history = data_msg.get("history")
 
             for agent in ["data", "strategy", "summariser"]:
                 await ws.send_json({"type": "status", "agent": agent, "state": "pending"})
@@ -57,7 +58,7 @@ async def websocket_endpoint(ws: WebSocket):
 
                 await ws.send_json({"type": "status", "agent": "strategy", "state": "running"})
                 if is_historical:
-                    strategy_output = await analyse_historical(question, race_context)
+                    strategy_output = await analyse_historical(question, race_context, history=history)
                 else:
                     strategy_output = await analyse_strategy(question, race_context)
                 await ws.send_json({"type": "status", "agent": "strategy", "state": "complete"})

@@ -15,6 +15,7 @@ function App() {
   const [raceContext, setRaceContext] = useState<RaceContext | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [lastBriefing, setLastBriefing] = useState<string | null>(null);
+  const [analysisHistory, setAnalysisHistory] = useState<{ role: string; content: string }[]>([]);
 
   const isHistorical = session !== null;
 
@@ -36,17 +37,21 @@ function App() {
   const handleHistoricalAsk = useCallback(
     (question: string) => {
       setLastBriefing(null);
-      sendQuery(question, session?.session_key, true);
+      setAnalysisHistory((prev) => [...prev, { role: "user", content: question }]);
+      sendQuery(question, session?.session_key, true, analysisHistory);
     },
-    [sendQuery, session],
+    [sendQuery, session, analysisHistory],
   );
 
   useEffect(() => {
     if (!lastResult) return;
 
     setLastBriefing(lastResult.briefing);
-
     setRaceContext(lastResult.race_context);
+
+    if (isHistorical) {
+      setAnalysisHistory((prev) => [...prev, { role: "assistant", content: lastResult.briefing }]);
+    }
 
     if (!isHistorical) {
       const engineerMsg: ChatMessage = {
@@ -64,6 +69,7 @@ function App() {
     setMessages([]);
     setRaceContext(null);
     setLastBriefing(null);
+    setAnalysisHistory([]);
   };
 
   const handleClearSession = () => {
@@ -71,6 +77,7 @@ function App() {
     setMessages([]);
     setRaceContext(null);
     setLastBriefing(null);
+    setAnalysisHistory([]);
   };
 
   return (

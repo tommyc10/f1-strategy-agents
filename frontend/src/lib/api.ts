@@ -27,12 +27,28 @@ export async function fetchSessions(year?: number): Promise<Session[]> {
 export type RaceSummary = {
   session_key: string;
   positions: { driver: string; position: number; gap_to_leader: number }[];
-  strategy_map: Record<string, { stint_number: number; compound: string; tyre_age: number }[]>;
+  strategy_map: Record<string, { stint_number: number; compound: string; tyre_age: number; lap_start: number }[]>;
   weather: { track_temp: number; air_temp: number; rain_risk: number } | null;
   sectors: { driver: string; lap_number: number; sector_number: number; sector_time: number }[];
+  laps: { driver: string; lap_number: number; lap_time: number }[];
   total_drivers: number;
+};
+
+export type RaceEvent = {
+  lap: number;
+  category: string;
+  flag: string;
+  message: string;
 };
 
 export async function fetchRaceSummary(sessionKey: string): Promise<RaceSummary> {
   return fetchJSON<RaceSummary>(`${BASE_URL}/data/race-summary?session_key=${sessionKey}`);
+}
+
+export async function fetchSuggestions(sessionKey: string): Promise<string[]> {
+  return fetchJSON<string[]>(`${BASE_URL}/data/suggestions?session_key=${sessionKey}`);
+}
+
+export async function fetchRaceEvents(sessionKey: string): Promise<RaceEvent[]> {
+  return fetchJSON<RaceEvent[]>(`${BASE_URL}/data/race-events?session_key=${sessionKey}`);
 }

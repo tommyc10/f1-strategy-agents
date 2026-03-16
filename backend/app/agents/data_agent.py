@@ -1,6 +1,7 @@
 import logging
 import httpx
 from app.services import openf1
+from app.services import cache
 from app.models.schemas import (
     RaceContext, DriverPosition, TyreStint, LapTime, Weather, SectorTime,
 )
@@ -124,6 +125,17 @@ def _empty_context() -> RaceContext:
     )
 
 
+def _filter_context_by_drivers(context: RaceContext, driver_codes: set[str]) -> RaceContext:
+    return RaceContext(
+        session_key=context.session_key,
+        positions=[p for p in context.positions if p.driver in driver_codes],
+        stints=[s for s in context.stints if s.driver in driver_codes],
+        laps=[l for l in context.laps if l.driver in driver_codes],
+        sectors=[s for s in context.sectors if s.driver in driver_codes],
+        weather=context.weather,
+    )
+
+
 async def fetch_race_context(
     session_key: str | None = None,
     drivers: list[str] | None = None,
@@ -137,12 +149,16 @@ async def fetch_race_context(
                 return _empty_context()
             session_key = str(session["session_key"])
 
+        cache_key = f"race_context:{session_key}"
+        cached = cache.get(cache_key)
+        if cached is not None:
+            context = cached
+            if drivers:
+                return _filter_context_by_drivers(context, set(drivers))
+            return context
+
         raw_drivers = await openf1.fetch_drivers(client, session_key)
         driver_lookup = _build_driver_lookup(raw_drivers)
-
-        if drivers:
-            driver_codes = set(drivers)
-            driver_lookup = {k: v for k, v in driver_lookup.items() if v in driver_codes}
 
         # Fetch remaining data sequentially with small delays to respect rate limits
         raw_positions = await openf1.fetch_positions(client, session_key)
@@ -159,7 +175,7 @@ async def fetch_race_context(
 
         raw_weather = await openf1.fetch_weather(client, session_key)
 
-        return RaceContext(
+        context = RaceContext(
             session_key=session_key,
             positions=_parse_positions(raw_positions, raw_intervals, driver_lookup),
             stints=_parse_stints(raw_stints, driver_lookup),
@@ -167,3 +183,9 @@ async def fetch_race_context(
             sectors=_parse_sectors(raw_laps, driver_lookup),
             weather=_parse_weather(raw_weather),
         )
+
+        cache.put(cache_key, context)
+
+        if drivers:
+            return _filter_context_by_drivers(context, set(drivers))
+        return context

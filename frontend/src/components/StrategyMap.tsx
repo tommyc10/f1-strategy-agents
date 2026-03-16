@@ -4,6 +4,7 @@ type Stint = {
   stint_number: number;
   compound: string;
   tyre_age: number;
+  lap_start: number;
 };
 
 const COMPOUND_BG: Record<string, string> = {
@@ -43,7 +44,7 @@ export function StrategyMap({
           ))}
         </div>
       </div>
-      <div className="p-4 flex flex-col gap-1.5">
+      <div className="p-4 flex flex-col gap-1.5 overflow-x-auto">
         {drivers.map(([driver, stints], i) => {
           const totalLaps = stints.reduce((sum, s) => sum + s.tyre_age, 0);
           return (
@@ -57,25 +58,33 @@ export function StrategyMap({
               <span className="w-10 text-xs text-[var(--text-secondary)] font-medium shrink-0">
                 {driver}
               </span>
-              <div className="flex-1 flex h-5 rounded overflow-hidden">
-                {stints.map((stint) => {
+              <div className="flex-1 flex h-5 rounded overflow-hidden items-center">
+                {stints.map((stint, stintIdx) => {
                   const widthPct = (stint.tyre_age / maxLaps) * 100;
                   return (
-                    <div
-                      key={stint.stint_number}
-                      className={`${COMPOUND_BG[stint.compound] ?? "bg-neutral-500"} opacity-80 hover:opacity-100 transition-opacity relative group`}
-                      style={{ width: `${widthPct}%` }}
-                    >
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        {stint.tyre_age >= 5 && (
-                          <span className="text-[9px] text-black/60 font-bold">
-                            {stint.tyre_age}
+                    <div key={stint.stint_number} className="flex items-center" style={{ width: `${widthPct}%` }}>
+                      {stintIdx > 0 && stint.lap_start > 0 && (
+                        <div className="flex flex-col items-center mx-px shrink-0">
+                          <span className="text-[7px] text-[var(--accent-muted)] font-mono leading-none">
+                            {stint.lap_start}
                           </span>
-                        )}
-                      </div>
-                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block z-10">
-                        <div className="bg-[var(--bg-dropdown)] border border-[var(--border-strong)] rounded px-2 py-1 text-[10px] text-[var(--text-secondary)] whitespace-nowrap shadow-lg">
-                          {stint.compound} · {stint.tyre_age} laps
+                          <div className="w-px h-3 bg-[var(--accent)]/40" />
+                        </div>
+                      )}
+                      <div
+                        className={`flex-1 ${COMPOUND_BG[stint.compound] ?? "bg-neutral-500"} opacity-80 hover:opacity-100 transition-opacity relative group h-5 rounded-sm`}
+                      >
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          {stint.tyre_age >= 5 && (
+                            <span className="text-[9px] text-black/60 font-bold">
+                              {stint.tyre_age}
+                            </span>
+                          )}
+                        </div>
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block z-10">
+                          <div className="bg-[var(--bg-dropdown)] border border-[var(--border-strong)] rounded px-2 py-1 text-[10px] text-[var(--text-secondary)] whitespace-nowrap shadow-lg">
+                            {stint.compound} · {stint.tyre_age} laps
+                          </div>
                         </div>
                       </div>
                     </div>

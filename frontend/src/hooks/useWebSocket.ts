@@ -56,13 +56,13 @@ export function useWebSocket() {
     return () => wsRef.current?.close();
   }, [connect]);
 
-  const sendQuery = useCallback((question: string, sessionKey?: string, isHistorical?: boolean) => {
+  const sendQuery = useCallback((question: string, sessionKey?: string, isHistorical?: boolean, history?: { role: string; content: string }[]) => {
     if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
     setLoading(true);
     setError(null);
     setLastResult(null);
     setAgentStatus({});
-    const msg: WsMessage = { type: "query", question, session_key: sessionKey, is_historical: isHistorical };
+    const msg: WsMessage = { type: "query", question, session_key: sessionKey, is_historical: isHistorical, history };
     wsRef.current.send(JSON.stringify(msg));
   }, []);
 

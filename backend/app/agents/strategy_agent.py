@@ -182,10 +182,18 @@ async def analyse_strategy(question: str, race_context: RaceContext) -> Strategy
     return _parse_response(raw_response)
 
 
-async def analyse_historical(question: str, race_context: RaceContext) -> StrategyOutput:
+async def analyse_historical(question: str, race_context: RaceContext, history: list[dict] | None = None) -> StrategyOutput:
     """Analyze a historical race using retrospective analysis prompt with full lap data."""
     context_text = _format_historical_context(race_context, question)
-    user_message = f"{context_text}\n\nAnalyze: {question}"
+
+    history_text = ""
+    if history:
+        history_text = "\n\nPrevious conversation:\n"
+        for msg in history[-6:]:
+            role = "User" if msg.get("role") == "user" else "Analyst"
+            history_text += f"{role}: {msg['content'][:300]}\n"
+
+    user_message = f"{context_text}{history_text}\n\nAnalyze: {question}"
 
     logger.info("Historical context size: %d chars, %d lines", len(context_text), context_text.count("\n"))
 
