@@ -69,7 +69,6 @@ def _format_historical_context(context: RaceContext, question: str) -> str:
             lines.append(f"  {s.driver} — stint {s.stint_number}: laps {s.lap_start}–{s.lap_end} ({s.compound.value}, {s.tyre_age} laps)")
 
     if filtered_laps:
-        lines.append(f"\nLap Times ({', '.join(target_drivers)}):")
         # Group laps by driver to show degradation trends
         laps_by_driver = {}
         for lap in filtered_laps:
@@ -77,8 +76,10 @@ def _format_historical_context(context: RaceContext, question: str) -> str:
                 laps_by_driver[lap.driver] = []
             laps_by_driver[lap.driver].append(lap)
 
+        # Limit to last 40 laps per driver to keep context manageable
+        lines.append(f"\nLap Times ({', '.join(target_drivers)}) — Last 40 laps:")
         for driver in sorted(laps_by_driver.keys()):
-            driver_laps = sorted(laps_by_driver[driver], key=lambda x: x.lap_number)
+            driver_laps = sorted(laps_by_driver[driver], key=lambda x: x.lap_number)[-40:]
             lines.append(f"  {driver}:")
             for i, lap in enumerate(driver_laps):
                 degradation = ""

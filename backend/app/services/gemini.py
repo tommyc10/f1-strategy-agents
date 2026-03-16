@@ -22,7 +22,7 @@ async def generate_strategy(system_prompt: str, user_message: str) -> str:
             config=genai.types.GenerateContentConfig(
                 system_instruction=system_prompt,
                 temperature=0.7,
-                max_output_tokens=1024,
+                max_output_tokens=2048,
             ),
         )
         return response.text or ""
