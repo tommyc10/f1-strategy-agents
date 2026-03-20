@@ -9,6 +9,7 @@ export function useWebSocket() {
   const [connected, setConnected] = useState(false);
   const [agentStatus, setAgentStatus] = useState<AgentStatus>({});
   const [lastResult, setLastResult] = useState<Extract<WsMessage, { type: "result" }> | null>(null);
+  const [streamingText, setStreamingText] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -37,12 +38,16 @@ export function useWebSocket() {
 
       if (msg.type === "status") {
         setAgentStatus((prev) => ({ ...prev, [msg.agent]: msg.state }));
+      } else if (msg.type === "stream") {
+        setStreamingText((prev) => prev + msg.chunk);
       } else if (msg.type === "result") {
         setLastResult(msg);
+        setStreamingText("");
         setLoading(false);
         setAgentStatus({});
       } else if (msg.type === "error") {
         setError(msg.message);
+        setStreamingText("");
         setLoading(false);
         setAgentStatus({});
       }
@@ -61,10 +66,11 @@ export function useWebSocket() {
     setLoading(true);
     setError(null);
     setLastResult(null);
+    setStreamingText("");
     setAgentStatus({});
     const msg: WsMessage = { type: "query", question, session_key: sessionKey, is_historical: isHistorical, history };
     wsRef.current.send(JSON.stringify(msg));
   }, []);
 
-  return { connected, agentStatus, lastResult, error, loading, sendQuery };
+  return { connected, agentStatus, lastResult, streamingText, error, loading, sendQuery };
 }

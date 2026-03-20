@@ -48,6 +48,7 @@ export type StrategyOutput = {
 export type WsMessage =
   | { type: "query"; question: string; session_key?: string; is_historical?: boolean; history?: { role: string; content: string }[] }
   | { type: "status"; agent: string; state: "pending" | "running" | "complete" }
+  | { type: "stream"; chunk: string }
   | { type: "result"; briefing: string; strategy_reasoning: string; race_context: RaceContext }
   | { type: "error"; message: string };
 

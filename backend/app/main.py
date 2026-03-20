@@ -3,7 +3,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import data, strategy, summariser, orchestrator, fastf1_router
 from app.agents.data_agent import fetch_race_context
-from app.agents.strategy_agent import analyse_strategy, analyse_historical
+from app.agents.strategy_agent import analyse_strategy_stream, analyse_historical_stream, _parse_response
 from app.agents.summariser_agent import create_briefing
 
 logging.basicConfig(level=logging.INFO)
@@ -57,10 +57,18 @@ async def websocket_endpoint(ws: WebSocket):
                 await ws.send_json({"type": "status", "agent": "data", "state": "complete"})
 
                 await ws.send_json({"type": "status", "agent": "strategy", "state": "running"})
+                raw_chunks = []
                 if is_historical:
-                    strategy_output = await analyse_historical(question, race_context, history=history)
+                    stream = analyse_historical_stream(question, race_context, history=history)
                 else:
-                    strategy_output = await analyse_strategy(question, race_context)
+                    stream = analyse_strategy_stream(question, race_context)
+
+                async for chunk in stream:
+                    raw_chunks.append(chunk)
+                    await ws.send_json({"type": "stream", "chunk": chunk})
+
+                raw_response = "".join(raw_chunks)
+                strategy_output = _parse_response(raw_response) if raw_response else _parse_response("")
                 await ws.send_json({"type": "status", "agent": "strategy", "state": "complete"})
 
                 await ws.send_json({"type": "status", "agent": "summariser", "state": "running"})

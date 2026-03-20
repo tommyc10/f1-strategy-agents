@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { Thermometer, Wind, CloudRain, Send, Loader2, AlertCircle } from "lucide-react";
+import { Thermometer, Wind, CloudRain, Send, AlertCircle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,8 @@ import { PaceTab } from "@/components/tabs/PaceTab";
 import { SectorsTab } from "@/components/tabs/SectorsTab";
 import { SuggestedQuestions } from "@/components/SuggestedQuestions";
 import { AnalysisCard } from "@/components/AnalysisCard";
+import { AgentPipeline } from "@/components/AgentPipeline";
+import { useTypewriter } from "@/hooks/useTypewriter";
 import { fetchRaceSummary, fetchSuggestions, fetchRaceEvents, type RaceSummary, type RaceEvent } from "@/lib/api";
 import type { Session, RaceContext } from "@/lib/types";
 
@@ -19,10 +21,13 @@ type Props = {
   onAsk: (question: string) => void;
   loading: boolean;
   lastAnswer: string | null;
+  streamingText?: string;
+  agentStatus?: Record<string, "pending" | "running" | "complete">;
   raceContext?: RaceContext | null;
 };
 
-export function RaceReviewView({ session, onAsk, loading, lastAnswer }: Props) {
+export function RaceReviewView({ session, onAsk, loading, lastAnswer, streamingText = "", agentStatus = {} }: Props) {
+  const revealedText = useTypewriter(streamingText, 2);
   const [summary, setSummary] = useState<RaceSummary | null>(null);
   const [fetching, setFetching] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
@@ -211,9 +216,20 @@ export function RaceReviewView({ session, onAsk, loading, lastAnswer }: Props) {
 
           <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
             {loading && pendingQuestion && (
-              <div className="flex items-center gap-2 text-xs text-muted-foreground animate-pulse">
-                <Loader2 size={12} className="animate-spin" />
-                <span className="uppercase tracking-widest">Analysing...</span>
+              <div className="space-y-3">
+                <AgentPipeline agentStatus={agentStatus} />
+                {revealedText && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-card/50 border border-border rounded-xl px-4 py-3"
+                  >
+                    <p className="text-[13px] text-foreground/80 leading-relaxed whitespace-pre-wrap">
+                      {revealedText}
+                      <span className="inline-block w-1.5 h-4 bg-primary/60 ml-0.5 animate-pulse rounded-sm" />
+                    </p>
+                  </motion.div>
+                )}
               </div>
             )}
 

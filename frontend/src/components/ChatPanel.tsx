@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { Send } from "lucide-react";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { MessageBubble } from "./MessageBubble";
+import { AgentPipeline } from "./AgentPipeline";
+import { useTypewriter } from "@/hooks/useTypewriter";
 import type { ChatMessage } from "../lib/types";
 
 type Props = {
@@ -9,15 +11,17 @@ type Props = {
   onSend: (question: string) => void;
   loading: boolean;
   agentStatus: Record<string, string>;
+  streamingText?: string;
 };
 
-export function ChatPanel({ messages, onSend, loading, agentStatus }: Props) {
+export function ChatPanel({ messages, onSend, loading, agentStatus, streamingText = "" }: Props) {
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
+  const revealedText = useTypewriter(streamingText, 2);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, agentStatus]);
+  }, [messages, agentStatus, revealedText]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,8 +29,6 @@ export function ChatPanel({ messages, onSend, loading, agentStatus }: Props) {
     onSend(input.trim());
     setInput("");
   };
-
-  const activeAgent = Object.entries(agentStatus).find(([, s]) => s === "running");
 
   return (
     <div className="flex flex-col h-full">
@@ -37,9 +39,21 @@ export function ChatPanel({ messages, onSend, loading, agentStatus }: Props) {
           ))}
         </AnimatePresence>
 
-        {loading && activeAgent && (
-          <div className="text-xs text-[var(--f1-accent-muted)] uppercase tracking-widest animate-pulse">
-            {activeAgent[0]} agent running...
+        {loading && (
+          <div className="space-y-3">
+            <AgentPipeline agentStatus={agentStatus as Record<string, "pending" | "running" | "complete">} />
+            {revealedText && (
+              <motion.div
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="max-w-[80%] bg-[var(--bg-card)] backdrop-blur-xl border border-[var(--f1-border)] rounded-2xl px-4 py-3"
+              >
+                <p className="text-[13px] text-[var(--text-primary)] leading-relaxed whitespace-pre-wrap">
+                  {revealedText}
+                  <span className="inline-block w-1.5 h-4 bg-[var(--f1-accent)]/60 ml-0.5 animate-pulse rounded-sm" />
+                </p>
+              </motion.div>
+            )}
           </div>
         )}
 

@@ -10,7 +10,7 @@ import { useTheme } from "@/hooks/useTheme";
 import type { ChatMessage, RaceContext, Session } from "@/lib/types";
 
 function App() {
-  const { connected, agentStatus, lastResult, error, loading, sendQuery } = useWebSocket();
+  const { connected, agentStatus, lastResult, streamingText, error, loading, sendQuery } = useWebSocket();
   const { theme, toggle: toggleTheme } = useTheme();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [raceContext, setRaceContext] = useState<RaceContext | null>(null);
@@ -120,6 +120,8 @@ function App() {
           onAsk={handleHistoricalAsk}
           loading={loading}
           lastAnswer={lastBriefing}
+          streamingText={streamingText}
+          agentStatus={agentStatus}
           raceContext={raceContext}
         />
       ) : (
@@ -130,6 +132,7 @@ function App() {
               onSend={handleSend}
               loading={loading}
               agentStatus={agentStatus}
+              streamingText={streamingText}
             />
           </main>
           <div className="border-l border-[var(--f1-border)]">

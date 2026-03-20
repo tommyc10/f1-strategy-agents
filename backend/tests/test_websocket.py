@@ -19,12 +19,16 @@ def _mock_strategy():
     )
 
 
+async def _mock_stream(*args, **kwargs):
+    """Mock async generator that yields the raw strategy text."""
+    yield "REASONING: Norris should pit.\nRECOMMENDATION: PIT\nCONFIDENCE: HIGH"
+
+
 @patch("app.main.create_briefing", new_callable=AsyncMock, return_value="Box box box.")
-@patch("app.main.analyse_strategy", new_callable=AsyncMock)
+@patch("app.main.analyse_strategy_stream", return_value=_mock_stream())
 @patch("app.main.fetch_race_context", new_callable=AsyncMock)
-def test_websocket_query(mock_data, mock_strategy, mock_summariser):
+def test_websocket_query(mock_data, mock_strategy_stream, mock_summariser):
     mock_data.return_value = _mock_context()
-    mock_strategy.return_value = _mock_strategy()
 
     from app.main import app
     client = TestClient(app)

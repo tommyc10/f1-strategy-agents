@@ -23,8 +23,8 @@ def mock_all_openf1():
 
 
 @pytest.fixture
-def mock_gemini():
-    """Mock Gemini LLM call."""
+def mock_groq():
+    """Mock Groq LLM call."""
     with patch("app.agents.strategy_agent.generate_strategy") as mock:
         mock.return_value = (
             "REASONING: Norris on 22-lap mediums, gap 1.2s. Undercut is viable.\n\n"
@@ -34,7 +34,7 @@ def mock_gemini():
         yield mock
 
 
-async def test_full_pipeline_via_orchestrator(mock_all_openf1, mock_gemini):
+async def test_full_pipeline_via_orchestrator(mock_all_openf1, mock_groq):
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         response = await client.post(

@@ -1,7 +1,8 @@
 import logging
 import re
+from collections.abc import AsyncGenerator
 from pathlib import Path
-from app.services.gemini import generate_strategy, GeminiRateLimitError
+from app.services.groq import generate_strategy, generate_strategy_stream, GroqRateLimitError
 from app.models.schemas import RaceContext, StrategyOutput
 from app.models.types import Recommendation, Confidence
 
@@ -167,10 +168,10 @@ async def analyse_strategy(question: str, race_context: RaceContext) -> Strategy
 
     try:
         raw_response = await generate_strategy(SYSTEM_PROMPT, user_message)
-    except GeminiRateLimitError:
+    except GroqRateLimitError:
         return _rate_limit_response()
 
-    logger.info("Gemini raw response:\n%s", raw_response[:500])
+    logger.info("Groq raw response:\n%s", raw_response[:500])
 
     if not raw_response:
         return StrategyOutput(
@@ -199,10 +200,10 @@ async def analyse_historical(question: str, race_context: RaceContext, history: 
 
     try:
         raw_response = await generate_strategy(HISTORICAL_SYSTEM_PROMPT, user_message)
-    except GeminiRateLimitError:
+    except GroqRateLimitError:
         return _rate_limit_response()
 
-    logger.info("Gemini historical analysis response (%d chars):\n%s", len(raw_response), raw_response[:500])
+    logger.info("Groq historical analysis response (%d chars):\n%s", len(raw_response), raw_response[:500])
 
     if not raw_response:
         return StrategyOutput(
@@ -214,9 +215,41 @@ async def analyse_historical(question: str, race_context: RaceContext, history: 
     return _parse_response(raw_response)
 
 
+async def analyse_strategy_stream(question: str, race_context: RaceContext) -> AsyncGenerator[str, None]:
+    """Stream strategy analysis chunks. Yields text as Groq generates it."""
+    context_text = _format_race_context(race_context)
+    user_message = f"Race Data:\n{context_text}\n\nQuestion: {question}"
+    try:
+        async for chunk in generate_strategy_stream(SYSTEM_PROMPT, user_message):
+            yield chunk
+    except GroqRateLimitError:
+        yield "Groq API rate limit reached. Please wait a minute and try again."
+
+
+async def analyse_historical_stream(
+    question: str, race_context: RaceContext, history: list[dict] | None = None,
+) -> AsyncGenerator[str, None]:
+    """Stream historical analysis chunks."""
+    context_text = _format_historical_context(race_context, question)
+
+    history_text = ""
+    if history:
+        history_text = "\n\nPrevious conversation:\n"
+        for msg in history[-6:]:
+            role = "User" if msg.get("role") == "user" else "Analyst"
+            history_text += f"{role}: {msg['content'][:300]}\n"
+
+    user_message = f"{context_text}{history_text}\n\nAnalyze: {question}"
+    try:
+        async for chunk in generate_strategy_stream(HISTORICAL_SYSTEM_PROMPT, user_message):
+            yield chunk
+    except GroqRateLimitError:
+        yield "Groq API rate limit reached. Please wait a minute and try again."
+
+
 def _rate_limit_response() -> StrategyOutput:
     return StrategyOutput(
-        reasoning="Gemini API rate limit reached. Please wait a minute and try again.",
+        reasoning="Groq API rate limit reached. Please wait a minute and try again.",
         recommendation=Recommendation.FLEXIBLE,
         confidence=Confidence.LOW,
     )
